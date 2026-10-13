@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c0b">
+<script>try{var t=localStorage.getItem('dp-theme');if(t==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+<title>Daniel Pinho Automóveis · Showroom</title>
+<meta name="description" content="Stand de automóveis premium em Lisboa. Showroom virtual com o stock real: deslize para ver cada viatura.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.easysite.pt">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   BASE / TOKENS — verde da marca (#19644D) e verde-claro de apoio (#81C995), como no site do stand
+   ========================================================= */
+:root{
+  --bg:#0a0c0b;
+  --ink:#eef2ef;
+  --muted:#8e9792;
+  --line:rgba(255,255,255,.08);
+  --brand:#19644D;          /* verde Daniel Pinho — fundos de botões, chips, selos */
+  --brand-ink:#ffffff;
+  --brand-rgb:25,100,77;
+  --accent:#81C995;         /* verde-claro — texto, ícones e linhas finas sobre o escuro */
+  --accent-rgb:129,201,149;
+  --accent-ink:#ffffff;
+  --led:#dff3e6;
+  --wa:#25D366;
+  --ink-2:#c3cbc6;          /* texto secundário */
+  --line-2:rgba(255,255,255,.14);
+  --line-3:rgba(255,255,255,.22);
+  --surface:#111413;
+  --card-top:#131715; --card-bot:#0d100f;
+  --media-top:#1a1e1c; --media-bot:#101312;
+  --glass:rgba(18,22,20,.6);
+  --header-bg:rgba(10,12,11,.66); --mnav-bg:rgba(10,12,11,.96);
+  --accent-glow:rgba(25,100,77,.75);
+  --radius-pill:99px;
+  --header-h:60px;
+
+  /* Tamanho do carro e do palco (mobile-first) */
+  --car-w:90vw;
+  --stage-h:max(300px, calc(var(--car-w) * .92));
+  --floor-y:24%;            /* altura do "chão" onde assenta o carro */
+  --ease-out:cubic-bezier(.2,.8,.2,1);
+}
+@media (min-width:700px){
+  :root{ --car-w:72vw; --stage-h:calc(var(--car-w) * .78); }
+}
+@media (min-width:1024px){
+  :root{ --car-w:min(60vw, 920px, 92vh); --stage-h:calc(var(--car-w) * .66); }
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{overflow-x:hidden}
+body{
+  font-family:'Outfit',system-ui,-apple-system,Segoe UI,sans-serif;font-weight:400;
+  background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  padding-top:var(--header-h);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+.header{
+  position:fixed;inset:0 0 auto 0;height:var(--header-h);z-index:50;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:0 16px;
+  background:var(--header-bg);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--line);
+}
+/* logótipo em moldura fina, como o do stand */
+.logo{display:inline-flex;flex-direction:column;align-items:flex-end;line-height:1;text-transform:uppercase;
+  padding:6px 10px 5px;border:1.5px solid var(--accent);border-radius:5px}
+.logo b{font-weight:500;font-size:14px;letter-spacing:.2em;color:var(--ink)}
+.logo span{font-size:7.5px;font-weight:500;color:var(--accent);letter-spacing:.42em;margin-top:3px;margin-right:-.42em}
+.nav{display:none;gap:28px;font-size:14px;font-weight:500;color:var(--ink-2)}
+.nav a{position:relative;padding:6px 0}
+.nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--accent);transform:scaleX(0);transition:transform .3s var(--ease-out)}
+.nav a:hover::after{transform:scaleX(1)}
+.header-right{display:none;align-items:center;gap:14px;font-size:13px;font-weight:600}
+.header-right .ico{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);transition:border-color .2s}
+.header-right .ico:hover{border-color:var(--accent)}
+.header-right svg{width:16px;height:16px}
+.burger{width:42px;height:42px;display:grid;place-items:center;margin-right:-8px}
+.burger span,.burger span::before,.burger span::after{display:block;width:20px;height:2px;background:var(--ink);border-radius:2px;position:relative;transition:transform .3s var(--ease-out),opacity .2s}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0}
+.burger span::before{top:-6px}.burger span::after{top:6px}
+.header.open .burger span{background:transparent}
+.header.open .burger span::before{transform:translateY(6px) rotate(45deg)}
+.header.open .burger span::after{transform:translateY(-6px) rotate(-45deg)}
+.mnav{
+  position:fixed;top:var(--header-h);left:0;right:0;z-index:49;
+  background:var(--mnav-bg);border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;padding:8px 16px 18px;
+  transform:translateY(-8px);opacity:0;visibility:hidden;
+  transition:transform .3s var(--ease-out),opacity .25s,visibility 0s .3s;
+}
+.header.open + .mnav{transform:none;opacity:1;visibility:visible;transition:transform .3s var(--ease-out),opacity .25s}
+.mnav a{padding:14px 2px;border-bottom:1px solid var(--line);font-weight:600}
+.mnav a.tel{color:var(--accent);border:0}
+@media (min-width:900px){
+  .nav{display:flex}
+  .burger,.mnav{display:none}
+}
+@media (min-width:1100px){ .header-right{display:flex} .header{padding:0 32px} }
+
+/* =========================================================
+   ESCENA — sala de exposição (só CSS)
+   ========================================================= */
+.stage{
+  position:relative;height:var(--stage-h);overflow:hidden;
+  touch-action:pan-y;              /* swipe horizontal sem bloquear o scroll vertical */
+  user-select:none;-webkit-user-select:none;
+  cursor:grab;outline:none;
+}
+.stage.is-dragging{cursor:grabbing}
+.scene,.scene>*{position:absolute;pointer-events:none}
+.scene{inset:0}
+.wall{
+  inset:0 0 38% 0;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 calc(12.5% - 1px),rgba(255,255,255,.028) calc(12.5% - 1px) 12.5%),
+    linear-gradient(180deg,#111413 0%,#1a1f1d 55%,#242a27 100%);
+}
+.led{
+  top:14px;left:8%;right:8%;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--led) 14%,#f4fbf6 50%,var(--led) 86%,transparent);
+  box-shadow:0 0 10px 1px rgba(var(--accent-rgb),.7),0 0 46px 8px rgba(var(--accent-rgb),.22);
+  transform-origin:center;
+}
+.led-glow{inset:0 0 30% 0;background:radial-gradient(ellipse 60% 75% at 50% 0%,rgba(var(--accent-rgb),.17),transparent 70%)}
+.floor{
+  inset:62% 0 0 0;
+  background:
+    radial-gradient(ellipse 46% 55% at 50% 0%,rgba(226,240,231,.09),transparent 70%),
+    linear-gradient(180deg,#111413 0%,#0a0c0b 60%,#050606 100%);
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.floor::before{ /* reflexo do LED no chão polido */
+  content:"";position:absolute;left:20%;right:20%;top:46%;height:18px;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(var(--accent-rgb),.12),transparent 70%);
+}
+.spot{inset:0;background:radial-gradient(ellipse calc(var(--car-w)*.55) 60% at 50% 64%,rgba(226,240,231,.07),transparent 70%)}
+.vignette{inset:0;background:radial-gradient(ellipse 85% 90% at 50% 55%,transparent 55%,rgba(0,0,0,.65) 100%);z-index:4}
+
+/* Plataforma giratória */
+.turntable{
+  position:absolute;left:50%;
+  width:calc(var(--car-w) * 1.04);aspect-ratio:1;
+  margin-left:calc(var(--car-w) * -.52);
+  bottom:calc(var(--floor-y) - var(--car-w) * .47);   /* compensa a perspetiva: o carro assenta no centro do disco */
+  perspective:calc(var(--car-w) * 2.2);
+  pointer-events:none;z-index:0;
+}
+.tt-disc{
+  position:absolute;inset:0;border-radius:50%;
+  transform:rotateX(78deg);
+  background:
+    repeating-conic-gradient(from 0deg,rgba(255,255,255,.035) 0 2deg,transparent 2deg 15deg),
+    radial-gradient(circle,#1b201e 0%,#131715 58%,#0c0f0e 70%,#18201c 71%,#0f1312 100%);
+  box-shadow:0 0 0 2px rgba(var(--accent-rgb),.55),0 0 26px 4px rgba(var(--accent-rgb),.28),inset 0 0 60px rgba(0,0,0,.8);
+}
+.tt-disc::before{ /* aro interior fino */
+  content:"";position:absolute;inset:6%;border-radius:50%;border:1px solid rgba(255,255,255,.06);
+}
+.tt-flash{
+  position:absolute;inset:0;border-radius:50%;opacity:0;
+  box-shadow:0 0 0 3px var(--accent),0 0 60px 16px rgba(var(--accent-rgb),.55);
+}
+
+/* Carros */
+.car{
+  position:absolute;left:50%;bottom:var(--floor-y);
+  width:var(--car-w);height:calc(var(--car-w) / 2.3);
+  margin-left:calc(var(--car-w) / -2);   /* centrado sem usar transform (transform fica livre p/ animar) */
+  z-index:3;will-change:transform;
+}
+.car::before{ /* sombra de contacto */
+  content:"";position:absolute;left:8%;right:8%;bottom:-5%;height:14%;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,0,0,.85),transparent 72%);
+}
+.car-body{position:absolute;inset:0;transform-origin:50% 100%;animation:breathe 4.5s ease-in-out infinite alternate}
+@keyframes breathe{from{transform:scale(1)}to{transform:scale(1.01)}}
+.car-img,.car-refl{position:absolute;left:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;pointer-events:none;-webkit-user-drag:none}
+.car-img{bottom:0}
+.car-refl{
+  top:100%;transform:scaleY(-1);opacity:.22;
+  -webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.9) 0%,transparent 45%);
+          mask-image:linear-gradient(to top,rgba(0,0,0,.9) 0%,transparent 45%);
+}
+.car--side{
+  z-index:1;
+  transform:translateX(calc(var(--side) * var(--car-w) * .66)) translateY(-14%) scale(.52);
+  filter:blur(3px) brightness(.38) saturate(.6);
+  transition:transform .45s var(--ease-out);
+}
+.car--side .car-body{animation:none}
+.car--side::before{opacity:.6}
+.stage.is-dragging .car--side{transition:none}
+.car--ghost{z-index:2;pointer-events:none}
+.car--ghost .car-body{animation:none}
+
+/* Setas, contador e 360 */
+.arrow{
+  position:absolute;top:calc(100% - var(--floor-y) - var(--car-w) / 4.6);z-index:6;
+  width:46px;height:46px;margin-top:-23px;border-radius:50%;
+  display:grid;place-items:center;
+  background:var(--glass);border:1px solid var(--line-2);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  transition:border-color .2s,background .2s,transform .2s;
+}
+.arrow:hover{border-color:var(--accent);background:rgba(var(--accent-rgb),.12)}
+.arrow:active{transform:scale(.92)}
+.arrow svg{width:18px;height:18px}
+.arrow--prev{left:10px}.arrow--next{right:10px}
+@media (min-width:1024px){.arrow{width:56px;height:56px;margin-top:-28px}.arrow--prev{left:32px}.arrow--next{right:32px}}
+.hud{position:absolute;top:28px;left:16px;right:16px;z-index:6;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+.counter{font-size:12px;font-weight:500;letter-spacing:.2em;color:var(--muted);font-variant-numeric:tabular-nums}
+.counter b{color:var(--ink)}
+.btn360{
+  pointer-events:auto;display:flex;align-items:center;gap:8px;
+  padding:7px 12px;border-radius:99px;font-size:12px;font-weight:500;
+  background:var(--glass);border:1px solid var(--line-2);
+}
+.btn360 small{font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+.btn360.is-live{border-color:rgba(var(--accent-rgb),.7);box-shadow:0 0 0 0 rgba(var(--accent-rgb),.5);animation:pulse360 2.4s ease-out infinite}
+@keyframes pulse360{0%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.45)}70%,100%{box-shadow:0 0 0 10px rgba(var(--accent-rgb),0)}}
+.btn360[aria-pressed="true"]{animation:none;background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn360[aria-pressed="true"] small{color:var(--brand-ink)}
+.hint{
+  position:absolute;left:50%;bottom:10px;z-index:6;transform:translateX(-50%);
+  font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
+  transition:opacity .6s;
+}
+.hint.hide{opacity:0}
+
+/* =========================================================
+   PAINEL DE INFORMAÇÃO
+   ========================================================= */
+.panel{max-width:1100px;margin:0 auto;padding:18px 16px 8px}
+.panel-head{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-size:12px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--accent)}
+.title{font-size:clamp(26px,7vw,44px);font-weight:600;line-height:1.05;letter-spacing:-.02em;margin-top:6px}
+.year-chip:empty{display:none}
+.year-chip{display:inline-block;vertical-align:middle;margin-left:8px;padding:3px 9px;border:1px solid var(--line);border-radius:99px;font-size:13px;font-weight:600;color:var(--ink-2);letter-spacing:0;transform:translateY(-4px)}
+.price-label{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.price{display:block;font-size:clamp(30px,8.5vw,48px);font-weight:600;color:var(--accent);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+@media (min-width:700px){
+  .panel{padding:24px 32px 8px}
+  .panel-head{flex-direction:row;justify-content:space-between;align-items:flex-end}
+  .price-wrap{text-align:right}
+}
+.specs{
+  list-style:none;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:18px;
+}
+.spec{
+  grid-column:span 2;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;
+  padding:12px 6px;border-radius:14px;background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
+}
+.spec:nth-child(n+4){grid-column:span 3}
+.spec svg{width:20px;height:20px;color:var(--accent);margin-bottom:2px}
+.spec-val{font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.spec-lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+@media (min-width:700px){
+  .specs{grid-template-columns:repeat(5,1fr);gap:12px}
+  .spec,.spec:nth-child(n+4){grid-column:auto;padding:16px 8px}
+  .spec-val{font-size:17px}
+}
+/* animação de entrada do texto */
+.fx-in{animation:fadeUp .55s var(--ease-out) both;animation-delay:calc(var(--i,0) * 55ms)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* =========================================================
+   CTA
+   ========================================================= */
+.ctas{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  min-height:52px;padding:0 28px;border-radius:var(--radius-pill);font-weight:500;font-size:15px;
+  transition:transform .15s,box-shadow .25s,background .2s,border-color .2s;
+}
+.btn:active{transform:scale(.98)}
+.btn svg{width:18px;height:18px}
+.btn-primary{background:var(--brand);color:var(--brand-ink);border:1px solid rgba(var(--accent-rgb),.35);box-shadow:0 10px 30px -10px var(--accent-glow)}
+.btn-primary:hover{box-shadow:0 14px 40px -10px var(--accent-glow)}
+.btn-ghost{border:1px solid var(--line-3)}
+.btn-ghost:hover{border-color:var(--accent)}
+@media (min-width:700px){.ctas{flex-direction:row}.ctas .btn{flex:0 0 auto}}
+
+/* Miniaturas */
+.thumbs{max-width:1100px;margin:22px auto 0;padding:0 0 8px}
+.thumbs-track{
+  display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;
+  padding:6px 16px 14px;scrollbar-width:none;overscroll-behavior-x:contain;
+}
+.thumbs-track::-webkit-scrollbar{display:none}
+@media (min-width:700px){.thumbs-track{padding:6px 32px 14px}}
+.thumb{
+  flex:0 0 auto;width:118px;scroll-snap-align:center;text-align:left;
+  padding:8px 8px 10px;border-radius:14px;background:var(--surface);border:1px solid var(--line);
+  transition:border-color .25s,box-shadow .25s,transform .2s,opacity .25s;opacity:.6;
+}
+.thumb:hover{opacity:.9}
+.thumb[aria-current="true"]{opacity:1;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 8px 24px -10px rgba(var(--accent-rgb),.7)}
+.thumb img{width:100%;height:42px;object-fit:contain;margin-bottom:6px}
+.thumb b{display:block;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thumb span{font-size:11px;color:var(--accent);font-weight:600}
+
+/* Toast */
+.toast{
+  position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));z-index:60;
+  transform:translate(-50%,10px);opacity:0;pointer-events:none;
+  padding:10px 16px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:600;
+  transition:opacity .25s,transform .25s var(--ease-out);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Botões flutuantes */
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:40;display:flex;flex-direction:column;gap:12px}
+.fab a{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;box-shadow:0 10px 26px -6px rgba(0,0,0,.7);transition:transform .2s}
+.fab a:hover{transform:translateY(-2px)}
+.fab svg{width:26px;height:26px}
+.fab-wa{background:var(--wa);color:#fff}
+.fab-call{background:var(--surface);border:1px solid var(--line-2);color:var(--accent)}
+
+/* =========================================================
+   SECÇÕES DO SITE (stock, destaque, serviços, stand, contacto)
+   ========================================================= */
+.section{max-width:1200px;margin:0 auto;padding:72px 16px}
+@media (min-width:700px){.section{padding:104px 32px}}
+.sec-head{display:flex;flex-direction:column;gap:14px;margin-bottom:36px}
+@media (min-width:900px){.sec-head{flex-direction:row;justify-content:space-between;align-items:flex-end}}
+.kicker{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:var(--accent)}
+.kicker::before{content:"";width:28px;height:1px;background:var(--accent)}
+.h2{font-size:clamp(28px,5vw,46px);font-weight:600;letter-spacing:-.025em;line-height:1.08;margin-top:12px}
+.lead{color:var(--ink-2);font-size:15px;line-height:1.7;max-width:520px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(var(--accent-rgb),.35),transparent);max-width:1200px;margin:0 auto}
+
+/* Stock */
+.stock-tools{display:flex;flex-direction:column;gap:12px;margin-bottom:26px}
+@media (min-width:900px){.stock-tools{flex-direction:row;align-items:center;justify-content:space-between}}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px;scroll-snap-type:x proximity}
+.chips::-webkit-scrollbar{display:none}
+@media (min-width:900px){.chips{margin:0;padding:2px 24px 2px 0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)}.stock-tools{gap:24px}.stock-tools .chips{flex:1;min-width:0}}
+.nophoto{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:14px;background:radial-gradient(ellipse 70% 60% at 50% 40%,rgba(var(--brand-rgb),.35),transparent 70%),linear-gradient(180deg,var(--media-top),var(--media-bot))}
+.nophoto .logo{opacity:.8}
+.nophoto small{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.chip{flex:0 0 auto;padding:9px 16px;border-radius:99px;border:1px solid var(--line-2);font-size:13px;font-weight:500;color:var(--ink-2);transition:all .2s;scroll-snap-align:start;white-space:nowrap}
+.chip small{font-size:11px;color:var(--muted);margin-left:4px}
+.chip[aria-pressed="true"] small{color:rgba(255,255,255,.7)}
+.chip:hover{border-color:var(--accent);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.sort{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);flex:0 0 auto}
+.sort select{font:inherit;font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:99px;padding:9px 34px 9px 16px;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2381C995' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:14px}
+.sort select:focus{border-color:var(--accent)}
+.stock-count{font-size:13px;color:var(--muted);margin:-8px 0 22px}
+.stock-count b{color:var(--ink);font-weight:500}
+.grid{display:grid;grid-template-columns:1fr;gap:18px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.grid{grid-template-columns:repeat(3,1fr);gap:22px}}
+.vcard{position:relative;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);transition:transform .35s var(--ease-out),border-color .3s,box-shadow .35s}
+.vcard:hover{transform:translateY(-4px);border-color:rgba(var(--accent-rgb),.45);box-shadow:0 24px 50px -24px rgba(0,0,0,.9),0 0 0 1px rgba(var(--accent-rgb),.15)}
+.vcard[hidden]{display:none}
+.vcard-media{position:relative;display:block;aspect-ratio:3/2;overflow:hidden;background:linear-gradient(180deg,var(--media-top),var(--media-bot))}
+.vcard-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s ease,transform .7s var(--ease-out)}
+.vcard-media .alt{opacity:0}
+@media (hover:hover){.vcard:hover .vcard-media .alt{opacity:1}.vcard:hover .vcard-media img{transform:scale(1.035)}}
+.badges{position:absolute;top:12px;left:12px;right:12px;z-index:2;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.badge{padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;background:rgba(10,12,11,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(var(--accent-rgb),.55);color:#dff3e6}
+.badge--brand{background:var(--brand);border-color:var(--brand);color:#fff}
+.badge--muted{background:rgba(255,255,255,.88);border-color:transparent;color:#111312}
+.vcard-body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:6px;flex:1}
+.vcard-brand{font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+.vcard h3{font-size:19px;font-weight:500;letter-spacing:-.01em;line-height:1.25}
+.vcard-meta{font-size:13px;color:var(--muted)}
+.vcard-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:16px;border-top:1px solid var(--line)}
+.vcard-price{font-size:20px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.vcard-price.soft{font-size:15px;font-weight:500;color:var(--ink-2)}
+.vcard-actions{display:flex;gap:8px}
+.icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line-2);transition:all .2s}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn--wa:hover{border-color:var(--wa);color:var(--wa)}
+.more-wrap{display:flex;justify-content:center;margin-top:34px}
+.more-wrap[hidden]{display:none}
+
+/* Destaque */
+.feature{display:grid;gap:28px;align-items:center}
+@media (min-width:960px){.feature{grid-template-columns:1.35fr 1fr;gap:56px}}
+.feature-stage{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:3/2;background:var(--media-top);border:1px solid var(--line)}
+.feature-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .35s}
+.feature-stage::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);pointer-events:none}
+.feature-thumbs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.feature-thumbs button{aspect-ratio:3/2;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--line);padding:0;opacity:.55;transition:all .2s}
+.feature-thumbs button:hover{opacity:.9}
+.feature-thumbs button[aria-current="true"]{opacity:1;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.feature-thumbs img{width:100%;height:100%;object-fit:cover}
+.feature-info .h2{margin-bottom:6px}
+.feature-price{font-size:28px;font-weight:600;color:var(--accent);margin:10px 0 22px}
+.spec-table{list-style:none;border-top:1px solid var(--line);margin-bottom:26px}
+.spec-table li{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line);font-size:14px}
+.spec-table span{color:var(--muted)}
+.spec-table b{font-weight:600}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px}
+.btn-row .btn{flex:1 1 200px}
+
+/* Serviços */
+.services{display:grid;gap:16px;grid-template-columns:1fr}
+@media (min-width:640px){.services{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.services{grid-template-columns:repeat(4,1fr)}}
+.service{padding:28px 24px;border-radius:20px;background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);transition:border-color .3s,transform .3s var(--ease-out)}
+.service:hover{border-color:rgba(var(--accent-rgb),.4);transform:translateY(-3px)}
+.service-ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;margin-bottom:20px;background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.3);color:var(--accent)}
+.service-ico svg{width:22px;height:22px}
+.service h3{font-size:17px;font-weight:500;margin-bottom:8px}
+.service p{font-size:14px;line-height:1.65;color:var(--ink-2)}
+
+/* O stand */
+.stand{display:grid;gap:32px;align-items:center}
+@media (min-width:960px){.stand{grid-template-columns:1fr 1fr;gap:64px}}
+.stand-photo{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/3;border:1px solid var(--line)}
+.stand-photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.05)}
+.stand-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(10,12,11,.7))}
+.stand-photo figcaption{position:absolute;left:20px;bottom:18px;z-index:1;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#e9e4da}
+.pillars{list-style:none;display:grid;gap:14px;margin-top:26px}
+.pillars li{display:flex;gap:14px;align-items:flex-start;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.pillars li::before{content:"";flex:0 0 8px;height:8px;margin-top:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(var(--accent-rgb),.6)}
+.pillars b{color:var(--ink)}
+
+/* Contacto */
+.contact{display:grid;gap:28px}
+@media (min-width:960px){.contact{grid-template-columns:1fr 1.15fr;gap:56px}}
+.contact-list{list-style:none;display:grid;gap:12px;margin-top:26px}
+.contact-list li{display:flex;gap:14px;align-items:center;padding:16px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.contact-list svg{flex:0 0 20px;width:20px;height:20px;color:var(--accent)}
+.contact-list small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.contact-list a,.contact-list span{font-weight:600;font-size:15px}
+.form{padding:26px 22px;border-radius:24px;background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);display:grid;gap:14px}
+@media (min-width:700px){.form{padding:34px;grid-template-columns:1fr 1fr}.form .full{grid-column:1/-1}}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line-2);border-radius:12px;padding:13px 14px;outline:none;transition:border-color .2s;width:100%}
+.field textarea{min-height:110px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.form .btn{width:100%}
+.form-note{font-size:12px;color:var(--muted)}
+
+/* Rodapé */
+.site-footer{border-top:1px solid var(--line);padding:40px 16px 110px;text-align:center;display:grid;gap:16px;justify-items:center;color:var(--muted);font-size:13px}
+.site-footer nav{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;font-weight:600;color:var(--ink-2)}
+.site-footer nav a:hover{color:var(--accent)}
+
+/* Serviços como ligações, números do stand, notas legais */
+a.service{display:flex;flex-direction:column;color:inherit}
+.service p{flex:1}
+.service-cta{display:inline-block;margin-top:18px;font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.02em;transition:transform .25s var(--ease-out)}
+.service:hover .service-cta{transform:translateX(4px)}
+.stats{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
+.stats li{padding:16px 10px;border-radius:16px;border:1px solid var(--line);background:var(--surface);text-align:center}
+.stats b{display:block;font-size:clamp(22px,4vw,30px);font-weight:500;color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stats span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.contact-list em{display:block;font-style:normal;font-size:11px;color:var(--muted);margin-top:2px}
+#moveis a{white-space:nowrap}
+.site-footer .logo{align-items:flex-end}
+.footer-social{display:flex;gap:18px;font-size:13px}
+.footer-social a,.legal a{color:var(--ink-2);border-bottom:1px solid var(--line-2);transition:color .2s,border-color .2s}
+.footer-social a:hover,.legal a:hover{color:var(--accent);border-color:var(--accent)}
+.legal{font-size:12px;line-height:1.9}
+
+/* Botão do cabeçalho */
+.btn-head{padding:9px 16px;border-radius:99px;border:1px solid var(--accent);color:var(--accent);font-weight:500;font-size:13px;transition:all .2s}
+.btn-head:hover{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+
+/* Título sobre o palco */
+.stage-tag{position:absolute;left:50%;top:30px;transform:translateX(-50%);z-index:6;font-size:11px;font-weight:500;letter-spacing:.34em;text-transform:uppercase;color:rgba(242,238,230,.55);white-space:nowrap;pointer-events:none;display:none}
+@media (min-width:700px){.stage-tag{display:block}}
+
+/* Revelar ao fazer scroll */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
+.reveal.in{opacity:1;transform:none}
+
+
+/* =========================================================
+   TEMA CLARO — branco e verde, como o site do stand (botão sol/lua)
+   ========================================================= */
+:root[data-theme="light"]{
+  --bg:#f7f7f7; --ink:#111312; --muted:#6b706d; --ink-2:#3c413e;
+  --line:rgba(0,0,0,.08); --line-2:rgba(0,0,0,.14); --line-3:rgba(0,0,0,.28);
+  --surface:#ffffff; --card-top:#ffffff; --card-bot:#fafafa;
+  --media-top:#f2f2f2; --media-bot:#e8e9e8;
+  --glass:rgba(255,255,255,.75);
+  --header-bg:rgba(255,255,255,.82); --mnav-bg:rgba(255,255,255,.97);
+  --accent:#19644D; --accent-rgb:25,100,77; --accent-ink:#ffffff; --accent-glow:rgba(25,100,77,.35);
+  --led:#ffffff;
+  color-scheme:light;
+}
+:root[data-theme="light"] body{background:var(--bg)}
+:root[data-theme="light"] .burger span,:root[data-theme="light"] .burger span::before,:root[data-theme="light"] .burger span::after{background:var(--ink)}
+:root[data-theme="light"] .header.open .burger span{background:transparent}
+/* palco: galeria clara */
+:root[data-theme="light"] .wall{background:
+  repeating-linear-gradient(90deg,transparent 0 calc(12.5% - 1px),rgba(0,0,0,.035) calc(12.5% - 1px) 12.5%),
+  linear-gradient(180deg,#e4e3df 0%,#efeeea 55%,#f7f6f3 100%)}
+:root[data-theme="light"] .led{background:linear-gradient(90deg,transparent,#fff 14%,#fff 86%,transparent);box-shadow:0 1px 0 rgba(0,0,0,.06),0 0 40px 10px rgba(255,255,255,.95)}
+:root[data-theme="light"] .led-glow{background:radial-gradient(ellipse 60% 75% at 50% 0%,rgba(255,255,255,.9),transparent 70%)}
+:root[data-theme="light"] .floor{background:radial-gradient(ellipse 46% 55% at 50% 0%,rgba(255,255,255,.7),transparent 70%),linear-gradient(180deg,#dad9d5 0%,#e8e7e3 60%,#f0efec 100%);border-top-color:rgba(0,0,0,.06)}
+:root[data-theme="light"] .floor::before{display:none}
+:root[data-theme="light"] .spot{background:radial-gradient(ellipse calc(var(--car-w)*.55) 60% at 50% 64%,rgba(255,255,255,.55),transparent 70%)}
+:root[data-theme="light"] .vignette{background:radial-gradient(ellipse 85% 90% at 50% 55%,transparent 60%,rgba(0,0,0,.10) 100%)}
+:root[data-theme="light"] .tt-disc{background:
+  repeating-conic-gradient(from 0deg,rgba(0,0,0,.035) 0 2deg,transparent 2deg 15deg),
+  radial-gradient(circle,#fbfbfa 0%,#efefed 58%,#e3e3e0 70%,#d6d6d3 71%,#e9e9e6 100%);
+  box-shadow:0 0 0 2px rgba(25,100,77,.75),0 0 30px 4px rgba(25,100,77,.12),inset 0 0 50px rgba(0,0,0,.08)}
+:root[data-theme="light"] .tt-disc::before{border-color:rgba(0,0,0,.08)}
+:root[data-theme="light"] .tt-flash{box-shadow:0 0 0 3px var(--brand),0 0 50px 10px rgba(25,100,77,.25)}
+:root[data-theme="light"] .car--side{filter:blur(3px) contrast(.55) brightness(1.2) saturate(.5)}
+:root[data-theme="light"] .car::before{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,0,0,.55),transparent 72%)}
+:root[data-theme="light"] .car-refl{opacity:.16}
+/* secções */
+:root[data-theme="light"] .divider{background:linear-gradient(90deg,transparent,rgba(25,100,77,.3),transparent)}
+:root[data-theme="light"] .vcard:hover{border-color:rgba(25,100,77,.45);box-shadow:0 24px 50px -24px rgba(25,100,77,.3)}
+:root[data-theme="light"] .service-ico{background:rgba(25,100,77,.06);border-color:rgba(25,100,77,.22)}
+:root[data-theme="light"] .service:hover{border-color:rgba(25,100,77,.4)}
+:root[data-theme="light"] .pillars li::before{box-shadow:none}
+:root[data-theme="light"] .thumb[aria-current="true"]{box-shadow:0 0 0 1px var(--accent),0 8px 24px -12px rgba(25,100,77,.45)}
+:root[data-theme="light"] .fab a{box-shadow:0 10px 26px -8px rgba(0,0,0,.35)}
+:root[data-theme="light"] .stage-tag{color:rgba(17,17,19,.45)}
+:root[data-theme="light"] .btn360.is-live{border-color:var(--accent);animation:none}
+:root[data-theme="light"] .arrow:hover{background:rgba(25,100,77,.08)}
+
+/* Botão de tema */
+.head-actions{display:flex;align-items:center;gap:10px}
+.theme-btn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line-2);color:var(--ink);transition:border-color .2s,transform .3s var(--ease-out)}
+.theme-btn:hover{border-color:var(--accent)}
+.theme-btn:active{transform:rotate(25deg) scale(.94)}
+.theme-btn svg{width:17px;height:17px}
+.theme-btn .ico-sun{display:none}
+:root[data-theme="light"] .theme-btn .ico-sun{display:block}
+:root[data-theme="light"] .theme-btn .ico-moon{display:none}
+html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s ease,border-color .4s ease !important}
+/* =========================================================
+   MOVIMENTO REDUZIDO
+   ========================================================= */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .car-body{animation:none}
+  .fx-in{animation:fadeIn .3s both}
+  .reveal{opacity:1;transform:none;transition:none}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+}
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     CABEÇALHO
+     ========================================================= -->
+<header class="header" id="header">
+  <a class="logo" href="#showroom" aria-label="Daniel Pinho Automóveis — início">
+    <b id="brandName">Daniel Pinho</b><span>Automóveis</span>
+  </a>
+  <nav class="nav" aria-label="Menu principal">
+    <a href="#showroom">Showroom</a>
+    <a href="#stock">Stock</a>
+    <a href="#servicos">Serviços</a>
+    <a href="#stand">O stand</a>
+    <a href="#contacto">Contacto</a>
+  </nav>
+  <div class="head-actions">
+  <div class="header-right">
+    <a href="#" class="js-tel" id="headerTel"></a>
+    <a href="#contacto" class="btn-head">Agendar visita</a>
+    <a href="#" class="ico js-fb" aria-label="Facebook" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 8h3V4h-3c-2.8 0-4 1.7-4 4.3V10H7v4h3v8h4v-8h3l1-4h-4V8.6c0-.4.3-.6.6-.6z"/></svg>
+    </a>
+    <a href="#" class="ico js-ig" aria-label="Instagram" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+    </a>
+  </div>
+  <button class="theme-btn" id="themeBtn" type="button" aria-label="Mudar para tema claro">
+    <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
+  </button>
+  <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mnav"><span></span></button>
+  </div>
+</header>
+<nav class="mnav" id="mnav" aria-label="Menu móvel">
+  <a href="#showroom">Showroom</a>
+  <a href="#stock">Stock</a>
+  <a href="#servicos">Serviços</a>
+  <a href="#stand">O stand</a>
+  <a href="#contacto">Contacto</a>
+  <a href="#" class="tel js-tel"></a>
+</nav>
+
+<main id="showroom">
+  <!-- =========================================================
+       ESCENA
+       ========================================================= -->
+  <section class="stage" id="stage" tabindex="0"
+           aria-roledescription="carrossel" aria-label="Showroom: deslize ou use as setas para mudar de carro">
+    <div class="scene" aria-hidden="true">
+      <div class="wall"></div>
+      <div class="led-glow"></div>
+      <div class="led" id="led"></div>
+      <div class="floor"></div>
+      <div class="spot"></div>
+    </div>
+
+    <div class="turntable" aria-hidden="true">
+      <div class="tt-disc" id="ttDisc"><div class="tt-flash" id="ttFlash"></div></div>
+    </div>
+
+    <div class="car car--side" id="carPrev" style="--side:-1" aria-hidden="true">
+      <div class="car-body"><img class="car-img" alt="" draggable="false"><img class="car-refl" alt="" draggable="false"></div>
+    </div>
+    <div class="car car--side" id="carNext" style="--side:1" aria-hidden="true">
+      <div class="car-body"><img class="car-img" alt="" draggable="false"><img class="car-refl" alt="" draggable="false"></div>
+    </div>
+    <div class="car" id="carActive">
+      <div class="car-body"><img class="car-img" alt="" draggable="false"><img class="car-refl" alt="" aria-hidden="true" draggable="false"></div>
+    </div>
+
+    <div class="vignette" aria-hidden="true" style="position:absolute;pointer-events:none"></div>
+    <p class="stage-tag" aria-hidden="true">Showroom digital</p>
+
+    <div class="hud">
+      <span class="counter" id="counter" aria-hidden="true"><b>01</b> / 06</span>
+      <button class="btn360" id="btn360" aria-pressed="false" aria-label="Vista 360 graus (em breve)">
+        360° <small id="btn360tag">Em breve</small>
+      </button>
+    </div>
+
+    <button class="arrow arrow--prev" id="prevBtn" aria-label="Carro anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="arrow arrow--next" id="nextBtn" aria-label="Carro seguinte">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+    <p class="hint" id="hint" aria-hidden="true">← Deslize para ver mais →</p>
+  </section>
+
+  <!-- =========================================================
+       PAINEL
+       ========================================================= -->
+  <section class="panel">
+    <p class="sr-only" aria-live="polite" id="live"></p>
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow fx" style="--i:0" id="pMarca">&nbsp;</p>
+        <h1 class="title fx" style="--i:1"><span id="pModelo">&nbsp;</span><span class="year-chip" id="pAnoChip"></span></h1>
+      </div>
+      <div class="price-wrap fx" style="--i:2">
+        <span class="price-label">Preço</span>
+        <strong class="price" id="pPreco">€ 0</strong>
+      </div>
+    </div>
+
+    <ul class="specs" aria-label="Especificações">
+      <li class="spec fx" style="--i:3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16l4-5"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg>
+        <span class="spec-val" id="sPot">0 cv</span><span class="spec-lbl">Potência</span>
+      </li>
+      <li class="spec fx" style="--i:4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3L4 21M16 3l4 18M12 5v2M12 11v2M12 17v2"/></svg>
+        <span class="spec-val" id="sKm">0 km</span><span class="spec-lbl">Quilómetros</span>
+      </li>
+      <li class="spec fx" style="--i:5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8h2a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg>
+        <span class="spec-val" id="sComb">—</span><span class="spec-lbl">Combustível</span>
+      </li>
+      <li class="spec fx" style="--i:6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="18" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><path d="M6 7v10M12 7v10M18 7v5H6"/></svg>
+        <span class="spec-val" id="sCaixa">—</span><span class="spec-lbl">Caixa</span>
+      </li>
+      <li class="spec fx" style="--i:7">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span class="spec-val" id="sAno">—</span><span class="spec-lbl">Ano</span>
+      </li>
+    </ul>
+
+    <!-- CTA -->
+    <div class="ctas">
+      <a class="btn btn-primary" id="ctaVisit" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Agendar visita
+      </a>
+      <a class="btn btn-ghost" id="ctaAll" href="#stock">Ver todo o stock</a>
+    </div>
+  </section>
+
+  <nav class="thumbs" aria-label="Escolher carro">
+    <div class="thumbs-track" id="thumbs"></div>
+  </nav>
+</main>
+
+<div class="divider"></div>
+
+<!-- =========================================================
+     STOCK
+     ========================================================= -->
+<section class="section" id="stock" aria-labelledby="stockTitle">
+  <div class="sec-head reveal">
+    <div>
+      <p class="kicker">Stock</p>
+      <h2 class="h2" id="stockTitle">Viaturas disponíveis</h2>
+    </div>
+    <p class="lead">Desportivos, clássicos e SUV premium, prontos a ver no nosso stand em Lisboa. As viaturas com o selo 3D também estão no showroom.</p>
+  </div>
+  <div class="stock-tools reveal">
+    <div class="chips" id="chips" role="group" aria-label="Filtrar por marca"></div>
+    <label class="sort">Ordenar
+      <select id="sortSel">
+        <option value="destaques">Destaques</option>
+        <option value="recentes">Últimas entradas</option>
+        <option value="preco-asc">Preço mais baixo</option>
+        <option value="preco-desc">Preço mais alto</option>
+        <option value="ano-desc">Ano: mais novos</option>
+        <option value="ano-asc">Ano: mais antigos</option>
+        <option value="marca">Marca (A–Z)</option>
+      </select>
+    </label>
+  </div>
+  <p class="stock-count" id="stockCount" aria-live="polite"></p>
+  <div class="grid" id="stockGrid"></div>
+  <div class="more-wrap" id="moreWrap"><button class="btn btn-ghost" id="moreBtn" type="button">Ver mais viaturas</button></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =========================================================
+     DESTAQUE (viatura com "destaque": true em cars.js)
+     ========================================================= -->
+<section class="section" id="destaque" aria-labelledby="featTitle">
+  <div class="feature">
+    <div class="reveal">
+      <figure class="feature-stage"><img id="featImg" alt=""></figure>
+      <div class="feature-thumbs" id="featThumbs" aria-label="Fotografias da viatura"></div>
+    </div>
+    <div class="feature-info reveal">
+      <p class="kicker">Em destaque</p>
+      <h2 class="h2" id="featTitle"></h2>
+      <p class="feature-price" id="featPrice"></p>
+      <ul class="spec-table" id="featSpecs"></ul>
+      <div class="btn-row">
+        <a class="btn btn-primary" id="featWa" href="#" target="_blank" rel="noopener">Pedir informações</a>
+        <button class="btn btn-ghost" id="featShow" type="button">Ver no showroom 3D</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =========================================================
+     SERVIÇOS — os quatro serviços do site atual (textos nossos, confirmar com o cliente)
+     ========================================================= -->
+<section class="section" id="servicos" aria-labelledby="servTitle">
+  <div class="sec-head reveal">
+    <div>
+      <p class="kicker">Serviços</p>
+      <h2 class="h2" id="servTitle">Mais do que vender carros</h2>
+    </div>
+    <p class="lead">Do financiamento à oficina, tratamos de tudo no mesmo sítio. Fale connosco pelo WhatsApp e respondemos rapidamente.</p>
+  </div>
+  <div class="services">
+    <a class="service reveal js-service" href="#" target="_blank" rel="noopener" id="financiamento" data-msg="Olá! Gostava de simular o financiamento de uma viatura.">
+      <div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></div>
+      <h3>Intermediação de crédito</h3><p>Ajudamos a encontrar a solução de financiamento certa para a viatura que escolheu e tratamos do processo consigo.</p>
+      <span class="service-cta">Simular financiamento →</span>
+    </a>
+    <a class="service reveal js-service" href="#" target="_blank" rel="noopener" data-msg="Olá! Gostava de vender o meu carro. Marca, modelo e quilómetros:">
+      <div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+      <h3>Compramos o seu carro</h3><p>Diga-nos a marca, o modelo e os quilómetros. Avaliamos a sua viatura e fazemos-lhe uma proposta.</p>
+      <span class="service-cta">Pedir avaliação →</span>
+    </a>
+    <a class="service reveal js-service" href="#" target="_blank" rel="noopener" data-msg="Olá! Procuro uma viatura específica. Marca, modelo e o que procuro:">
+      <div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg></div>
+      <h3>Consultadoria automóvel</h3><p>Procura um modelo concreto? Indique a versão, os quilómetros e os extras que quer. Nós encontramos a viatura por si.</p>
+      <span class="service-cta">Encomendar pesquisa →</span>
+    </a>
+    <a class="service reveal js-service" href="#" target="_blank" rel="noopener" data-msg="Olá! Gostava de marcar um serviço de oficina.">
+      <div class="service-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg></div>
+      <h3>Oficina</h3><p>Manutenção e preparação da sua viatura, com o mesmo cuidado que damos ao nosso stock.</p>
+      <span class="service-cta">Marcar serviço →</span>
+    </a>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =========================================================
+     O STAND — texto nosso, com factos do stock; confirmar com o cliente
+     ========================================================= -->
+<section class="section" id="stand" aria-labelledby="standTitle">
+  <div class="stand">
+    <figure class="stand-photo reveal" id="sobre">
+      <img src="assets/stand.webp" alt="Fachada do stand Daniel Pinho Automóveis na Rua Capitão Ramires, em Lisboa" loading="lazy">
+      <figcaption>Rua Capitão Ramires · Lisboa</figcaption>
+    </figure>
+    <div class="reveal">
+      <p class="kicker">O stand</p>
+      <h2 class="h2" id="standTitle">Automóveis selecionados, um a um</h2>
+      <p class="lead" style="margin-top:16px">No centro de Lisboa reunimos desportivos, clássicos e SUV de exceção. Cada viatura é escolhida pelo estado, pelo historial e pela exclusividade. Venha vê-las pessoalmente, sem pressas.</p>
+      <ul class="stats" id="stats" aria-label="O stand em números"></ul>
+      <ul class="pillars">
+        <li><span><b>Garantia</b> — viaturas entregues com garantia e segunda chave.</span></li>
+        <li><span><b>Certificadas</b> — várias viaturas Porsche Approved e Ferrari Approved.</span></li>
+        <li><span><b>Atendimento pessoal</b> — <span id="team"></span>.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =========================================================
+     CONTACTO
+     ========================================================= -->
+<section class="section" id="contacto" aria-labelledby="contTitle">
+  <div class="contact">
+    <div class="reveal">
+      <p class="kicker">Contacto</p>
+      <h2 class="h2" id="contTitle">Agende a sua visita</h2>
+      <p class="lead" style="margin-top:16px">Diga-nos que viatura quer ver e quando lhe dá jeito. Respondemos pelo WhatsApp.</p>
+      <ul class="contact-list">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><div><small>Telefone</small><a class="js-tel" href="#"></a><em>Chamada para a rede fixa nacional</em></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg><div><small>Telemóveis</small><span id="moveis"></span><em>Chamada para a rede móvel nacional</em></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg><div><small>Email</small><a id="email" href="#"></a></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div><small>Morada</small><a id="morada" href="#" target="_blank" rel="noopener"></a></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div><small>Horário</small><span id="horario"></span></div></li>
+      </ul>
+    </div>
+    <form class="form reveal" id="contactForm" novalidate>
+      <div class="field"><label for="fNome">Nome</label><input id="fNome" name="nome" autocomplete="name" required></div>
+      <div class="field"><label for="fTel">Telefone</label><input id="fTel" name="telefone" type="tel" autocomplete="tel"></div>
+      <div class="field full"><label for="fCarro">Viatura de interesse</label><select id="fCarro" name="carro"><option value="">Ainda não sei</option></select></div>
+      <div class="field full"><label for="fMsg">Mensagem</label><textarea id="fMsg" name="mensagem" placeholder="Ex.: gostava de ver o carro no sábado de manhã."></textarea></div>
+      <div class="full"><button class="btn btn-primary" type="submit">Enviar pelo WhatsApp</button></div>
+      <p class="form-note full">Ao enviar, abre o WhatsApp com a mensagem já escrita.</p>
+    </form>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <a class="logo" href="#showroom" aria-label="Daniel Pinho Automóveis — voltar ao início"><b>Daniel Pinho</b><span>Automóveis</span></a>
+  <nav aria-label="Rodapé"><a href="#stock">Stock</a><a href="#servicos">Serviços</a><a href="#stand">O stand</a><a href="#contacto">Contacto</a></nav>
+  <div class="footer-social">
+    <a href="#" class="js-fb" target="_blank" rel="noopener">Facebook</a>
+    <a href="#" class="js-ig" target="_blank" rel="noopener">Instagram</a>
+    <a href="#" class="js-wa" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+  <p class="legal">Daniel Pinho - Automóveis Unipessoal, Lda · NIF 516555901<br>
+    <a href="https://www.livroreclamacoes.pt/inicio" target="_blank" rel="noopener">Livro de Reclamações</a></p>
+  <p>© <span id="year"></span> Daniel Pinho Automóveis</p>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<div class="fab">
+  <a class="fab-wa js-wa" id="fabWa" href="#" target="_blank" rel="noopener" aria-label="Falar por WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+  </a>
+  <a class="fab-call js-tel-icon" id="fabCall" href="#" aria-label="Ligar para o stand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+  </a>
+</div>
+
+<script src="cars.js"></script>
+<script>
+(() => {
+'use strict';
+
+/* =========================================================
+   DADOS — stand (site oficial) + stock (cars.js)
+   ========================================================= */
+const STAND = {
+  nome: 'Daniel Pinho',
+  telefone: '210 548 083',                                   // fixo
+  moveis: ['964 619 165', '924 694 380', '926 902 755'],
+  whatsapp: '351964619165',                                  // só dígitos, com indicativo
+  email: 'geral@danielpinhoautomoveis.pt',
+  morada: 'Rua Capitão Ramires nº14 A-C, 1000-085 Lisboa',
+  mapa: 'https://maps.app.goo.gl/T4DMG3MT79e88D1v6',
+  horario: '09:00–13:00 · 14:30–19:00',
+  equipa: ['Daniel Pinho', 'Nelson Costa', 'João Maciel'],
+  facebook: 'https://www.facebook.com/danielpinhoautomoveis/',
+  instagram: 'https://www.instagram.com/daniel_pinho_automoveis_/'
+};
+
+const $ = id => document.getElementById(id);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stage = $('stage'), carActive = $('carActive'), carPrev = $('carPrev'), carNext = $('carNext');
+
+let stock = [];                 // todas as viaturas disponíveis
+let cars = [], idx = 0, busy = false;   // só as do showroom (com imagem recortada)
+let mode360 = false, frame = 0;
+
+const mod = i => ((i % cars.length) + cars.length) % cars.length;
+const thousands = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const has = v => v !== null && v !== undefined && v !== '';
+const fmtPrice = n => has(n) ? '€ ' + thousands(n) : 'Sob consulta';
+const fmtKm = n => has(n) ? thousands(n) + ' km' : '—';
+const fmtCv = n => Math.round(n) + ' cv';
+const fullName = c => `${c.marca} ${c.modelo}`;
+const nameYear = c => fullName(c) + (has(c.ano) ? ' ' + c.ano : '');
+
+function loadCars(){
+  const all = Array.isArray(window.DP_CARS) ? window.DP_CARS : [];
+  stock = all.map((c, i) => ({...c, _ord: i}));
+  return stock.filter(c => c.imagem && c.showroom).sort((a, b) => a.showroom - b.showroom);
+}
+
+/* Silhueta SVG genérica (quando falta a imagem) — tingida com car.cor */
+function shade(hex, amt){
+  const n = parseInt((hex || '#8a8f98').slice(1), 16);
+  const f = c => Math.max(0, Math.min(255, Math.round(c + (amt > 0 ? (255 - c) : c) * amt)));
+  return '#' + [n >> 16, (n >> 8) & 255, n & 255].map(f).map(c => c.toString(16).padStart(2, '0')).join('');
+}
+function silhouette(color){
+  const c = color || '#8a8f98';
+  const wheel = x => `<circle cx="${x}" cy="146" r="29" fill="#0b0b0c"/><circle cx="${x}" cy="146" r="18" fill="#2c2f34" stroke="#a3a9b1" stroke-width="2"/><circle cx="${x}" cy="146" r="5" fill="#a3a9b1"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 180"><defs>
+<linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(c,.35)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c,-.55)}"/></linearGradient>
+<linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfd8e3" stop-opacity=".55"/><stop offset="1" stop-color="#0c0f14" stop-opacity=".92"/></linearGradient></defs>
+<path d="M18 130C18 114 26 106 44 102L118 92C150 70 192 52 240 50C292 48 332 62 362 86L420 96C440 100 448 110 448 124L448 136C448 142 444 146 438 146L401 146A37 37 0 0 0 329 146L151 146A37 37 0 0 0 79 146L28 146C22 146 18 142 18 136Z" fill="url(#b)"/>
+<path d="M136 94C160 74 196 63 236 62L238 94Z" fill="url(#g)"/><path d="M248 62C284 62 312 72 334 92L250 94Z" fill="url(#g)"/>
+<path d="M40 112C150 104 300 102 440 110" stroke="#fff" stroke-opacity=".2" stroke-width="2" fill="none"/>
+<rect x="424" y="104" width="20" height="6" rx="3" fill="#fff6d8"/><rect x="18" y="108" width="12" height="7" rx="3" fill="#c3121c"/>
+${wheel(115)}${wheel(365)}</svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+/* Resolve a imagem do carro: PNG real se carregar, senão a silhueta. Com cache = pré-carga. */
+const srcCache = new Map();
+function loadImg(src){
+  return new Promise((ok, ko) => {
+    const im = new Image();
+    im.decoding = 'async';
+    im.onload = () => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()).then(() => ok(src));
+    im.onerror = ko;
+    im.src = src;
+  });
+}
+function resolveSrc(car){
+  if(!srcCache.has(car.id)){
+    const p = car.imagem ? loadImg(car.imagem).catch(() => silhouette(car.cor)) : Promise.resolve(silhouette(car.cor));
+    srcCache.set(car.id, p);
+  }
+  return srcCache.get(car.id);
+}
+function preloadAround(){
+  [-1, 1, 2].forEach(d => cars.length > 1 && resolveSrc(cars[mod(idx + d)]));
+}
+function setCarImage(el, src, alt){
+  el.querySelectorAll('img').forEach(im => { im.src = src; });
+  const main = el.querySelector('.car-img');
+  if(main) main.alt = alt || '';
+}
+
+/* =========================================================
+   ESCENA — plataforma (rotação lenta + impulso na transição)
+   ========================================================= */
+const disc = $('ttDisc');
+let rot = 0, extra = 0, extraTarget = 0, lastT = performance.now();
+function spinLoop(t){
+  const dt = Math.min(.05, (t - lastT) / 1000); lastT = t;
+  if(!reduced) rot += dt * 4;                       // 4°/s em repouso
+  extra += (extraTarget - extra) * Math.min(1, dt * 5);
+  disc.style.transform = `rotateX(78deg) rotateZ(${(rot + extra).toFixed(2)}deg)`;
+  requestAnimationFrame(spinLoop);
+}
+function kickPlatform(dir){
+  if(reduced) return;
+  extraTarget += -dir * 55;
+  $('ttFlash').animate([{opacity:0},{opacity:.9,offset:.25},{opacity:0}], {duration:700, easing:'ease-out'});
+}
+
+/* =========================================================
+   PAINEL
+   ========================================================= */
+let shown = null; // carro atualmente mostrado no painel (para contar a partir dele)
+function countTo(el, from, to, fmt, dur = 750){
+  cancelAnimationFrame(el._raf);
+  if(!has(to)){ el.textContent = fmt(null); return; }
+  if(!has(from)) from = 0;
+  if(reduced || from === to){ el.textContent = fmt(to); return; }
+  const t0 = performance.now();
+  const step = t => {
+    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(from + (to - from) * e);
+    if(p < 1) el._raf = requestAnimationFrame(step);
+  };
+  el._raf = requestAnimationFrame(step);
+}
+function renderPanel(car){
+  const prev = shown || {preco: 0, km: 0, potencia_cv: 0, ano: has(car.ano) ? car.ano - 10 : 0};
+  $('pMarca').textContent = car.marca;
+  $('pModelo').textContent = car.modelo;
+  $('pAnoChip').textContent = has(car.ano) ? car.ano : '';
+  $('pAnoChip').hidden = !has(car.ano);
+  $('sComb').textContent = car.combustivel;
+  $('sCaixa').textContent = car.caixa;
+  countTo($('pPreco'), prev.preco, car.preco, fmtPrice, 900);
+  countTo($('sKm'), prev.km, car.km, fmtKm);
+  countTo($('sPot'), prev.potencia_cv, car.potencia_cv, fmtCv);
+  countTo($('sAno'), prev.ano, car.ano, n => has(n) ? String(Math.round(n)) : '—');
+  document.querySelectorAll('.fx').forEach(el => { el.classList.remove('fx-in'); void el.offsetWidth; el.classList.add('fx-in'); });
+  $('live').textContent = `${nameYear(car)}, ${fmtPrice(car.preco)}`;
+  $('counter').innerHTML = `<b>${String(mod(cars.indexOf(car)) + 1).padStart(2, '0')}</b> / ${String(cars.length).padStart(2, '0')}`;
+  shown = car;
+  updateCTA(car);
+  update360(car);
+  updateThumbs(cars.indexOf(car));
+}
+
+/* =========================================================
+   CTA
+   ========================================================= */
+const waLink = text => `https://wa.me/${STAND.whatsapp}?text=${encodeURIComponent(text)}`;
+function updateCTA(car){
+  const preco = has(car.preco) ? ` por ${fmtPrice(car.preco)}` : '';
+  $('ctaVisit').href = waLink(`Olá! Tenho interesse no ${nameYear(car)}${preco}. Posso agendar uma visita?`);
+  $('ctaVisit').setAttribute('aria-label', `Agendar visita para ver o ${fullName(car)} por WhatsApp`);
+}
+function setupContacts(){
+  const telHref = n => 'tel:+351' + n.replace(/\s/g, '');
+  document.querySelectorAll('.js-tel').forEach(a => { a.href = telHref(STAND.telefone); a.textContent = STAND.telefone; });
+  $('fabCall').href = telHref(STAND.moveis[0]);
+  $('moveis').innerHTML = STAND.moveis.map(n => `<a href="${telHref(n)}">${n}</a>`).join(' · ');
+  const wa = waLink('Olá! Vi o vosso showroom virtual e gostava de mais informações.');
+  document.querySelectorAll('.js-wa').forEach(a => a.href = wa);
+  document.querySelectorAll('.js-service').forEach(a => a.href = waLink(a.dataset.msg));
+  document.querySelectorAll('.js-fb').forEach(a => a.href = STAND.facebook);
+  document.querySelectorAll('.js-ig').forEach(a => a.href = STAND.instagram);
+  $('email').href = 'mailto:' + STAND.email; $('email').textContent = STAND.email;
+  $('morada').href = STAND.mapa; $('morada').textContent = STAND.morada;
+  $('horario').textContent = STAND.horario;
+  $('team').textContent = STAND.equipa.slice(0, -1).join(', ') + ' e ' + STAND.equipa.at(-1);
+}
+
+let toastT;
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* Miniaturas do showroom + grelha de stock + destaque */
+const ICON_WA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>';
+const ICON_3D = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>';
+const infoMsg = car => `Olá! Tenho interesse no ${nameYear(car)}${has(car.preco) ? ' por ' + fmtPrice(car.preco) : ''}. Posso agendar uma visita?`;
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[ch]));
+function showInShowroom(i){
+  stage.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block: 'start'});
+  setTimeout(() => jumpTo(i), reduced ? 0 : 450);
+}
+function buildThumbs(){
+  const track = $('thumbs');
+  cars.forEach((car, i) => {
+    const b = document.createElement('button');
+    b.className = 'thumb'; b.type = 'button';
+    b.setAttribute('aria-label', `${nameYear(car)}, ${fmtPrice(car.preco)}`);
+    b.innerHTML = `<img alt="" src="${silhouette(car.cor)}"><b>${esc(fullName(car))}</b><span>${fmtPrice(car.preco)}</span>`;
+    b.addEventListener('click', () => jumpTo(i));
+    track.appendChild(b);
+    resolveSrc(car).then(src => { b.querySelector('img').src = src; });
+  });
+}
+
+/* Grelha de stock: filtro por marca, ordenação e "ver mais" */
+const PAGE = 12;
+const SORTS = {
+  'destaques': (a, b) => (a.showroom || 99) - (b.showroom || 99) || !!a.sem_fotos - !!b.sem_fotos || +b.id - +a.id,
+  'recentes': (a, b) => +b.id - +a.id,
+  'preco-asc': (a, b) => (a.preco ?? Infinity) - (b.preco ?? Infinity),
+  'preco-desc': (a, b) => (b.preco ?? -1) - (a.preco ?? -1),
+  'ano-desc': (a, b) => (b.ano * 12 + (b.mes || 0)) - (a.ano * 12 + (a.mes || 0)),
+  'ano-asc': (a, b) => (a.ano * 12 + (a.mes || 0)) - (b.ano * 12 + (b.mes || 0)),
+  'marca': (a, b) => fullName(a).localeCompare(fullName(b), 'pt')
+};
+const view = {marca: 'Todas', sort: 'destaques', shown: PAGE};
+function stockCard(car){
+  const meta = [car.ano, has(car.km) ? fmtKm(car.km) : null, car.combustivel, has(car.potencia_cv) ? fmtCv(car.potencia_cv) : null].filter(has).join(' · ');
+  const badges = [
+    car.reservado ? '<span class="badge badge--muted">Reservado</span>' : '',
+    car.showroom ? '<span class="badge badge--brand">3D</span>' : '',
+    ...(car.tags || []).slice(0, 2).map(t => `<span class="badge">${esc(t)}</span>`)
+  ].join('');
+  const [f1, f2] = car.fotos || [];
+  const img = f1 ? `<img alt="${esc(fullName(car))}" loading="lazy" decoding="async" src="${f1}">${f2 ? `<img class="alt" alt="" loading="lazy" decoding="async" src="${f2}">` : ''}`
+                 : `<div class="nophoto"><span class="logo" aria-hidden="true"><b>Daniel Pinho</b><span>Automóveis</span></span><small>Fotografias em breve</small></div>`;
+  const c = document.createElement('article');
+  c.className = 'vcard';
+  c.innerHTML = `<div class="vcard-media"><div class="badges">${badges}</div>${img}</div>
+    <div class="vcard-body"><p class="vcard-brand">${esc(car.marca)}</p><h3>${esc(car.modelo)}</h3><p class="vcard-meta">${meta}</p>
+    <div class="vcard-foot"><span class="vcard-price${has(car.preco) ? '' : ' soft'}">${fmtPrice(car.preco)}</span><div class="vcard-actions">
+    ${car.showroom ? `<button class="icon-btn" type="button" aria-label="Ver ${esc(fullName(car))} no showroom 3D">${ICON_3D}</button>` : ''}
+    <a class="icon-btn icon-btn--wa" href="${waLink(infoMsg(car))}" target="_blank" rel="noopener" aria-label="Pedir informações do ${esc(fullName(car))} por WhatsApp">${ICON_WA}</a>
+    </div></div></div>`;
+  const b3d = c.querySelector('button');
+  if(b3d) b3d.addEventListener('click', () => showInShowroom(cars.indexOf(car)));
+  return c;
+}
+function renderStock(){
+  const list = stock.filter(c => view.marca === 'Todas' || c.marca === view.marca).sort(SORTS[view.sort]);
+  const grid = $('stockGrid');
+  grid.replaceChildren(...list.slice(0, view.shown).map(stockCard));
+  $('moreWrap').hidden = list.length <= view.shown;
+  $('stockCount').innerHTML = `<b>${list.length}</b> ${list.length === 1 ? 'viatura' : 'viaturas'}${view.marca === 'Todas' ? ' em stock' : ' ' + esc(view.marca)}`;
+}
+function buildStock(){
+  const counts = stock.reduce((m, c) => m.set(c.marca, (m.get(c.marca) || 0) + 1), new Map());
+  const marcas = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt'));
+  [['Todas', stock.length], ...marcas].forEach(([m, n]) => {
+    const chip = document.createElement('button');
+    chip.className = 'chip'; chip.type = 'button';
+    chip.innerHTML = `${esc(m)}<small>${n}</small>`;
+    chip.setAttribute('aria-pressed', m === view.marca ? 'true' : 'false');
+    chip.addEventListener('click', () => {
+      $('chips').querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x === chip ? 'true' : 'false'));
+      view.marca = m; view.shown = PAGE; renderStock();
+    });
+    $('chips').appendChild(chip);
+  });
+  $('sortSel').addEventListener('change', e => { view.sort = e.target.value; view.shown = PAGE; renderStock(); });
+  $('moreBtn').addEventListener('click', () => { view.shown += PAGE; renderStock(); });
+  renderStock();
+
+  // formulário: viaturas por marca
+  const sel = $('fCarro');
+  [...stock].sort(SORTS.marca).forEach(car => sel.add(new Option(nameYear(car), nameYear(car))));
+
+  // números do stand
+  const oldest = Math.min(...stock.map(c => c.ano).filter(has));
+  $('stats').innerHTML = [[stock.length, 'Viaturas'], [counts.size, 'Marcas'], [oldest, 'A mais antiga']]
+    .map(([v, l]) => `<li><b>${v}</b><span>${l}</span></li>`).join('');
+}
+
+function buildFeature(){
+  const car = stock.find(c => c.destaque) || cars[0];
+  const i = cars.indexOf(car);
+  const shots = car.fotos && car.fotos.length ? car.fotos : [car.imagem];
+  $('featTitle').textContent = fullName(car);
+  $('featPrice').textContent = has(car.preco) ? fmtPrice(car.preco) : 'Preço sob consulta';
+  const rows = [['Registo', has(car.ano) ? (car.mes ? String(car.mes).padStart(2, '0') + '/' : '') + car.ano : '—'], ['Quilómetros', fmtKm(car.km)],
+    ['Potência', has(car.potencia_cv) ? fmtCv(car.potencia_cv) : '—'], ['Combustível', car.combustivel || '—'], ['Caixa', car.caixa || '—'],
+    ['Cor', [car.cor_nome, car.interior && 'interior ' + car.interior.toLowerCase()].filter(Boolean).join(' · ') || '—']];
+  $('featSpecs').innerHTML = rows.map(([k, v]) => `<li><span>${k}</span><b>${esc(v)}</b></li>`).join('');
+  $('featWa').href = waLink(infoMsg(car));
+  if(i >= 0) $('featShow').addEventListener('click', () => showInShowroom(i));
+  else $('featShow').hidden = true;
+  const img = $('featImg'); img.alt = fullName(car); img.src = shots[0];
+  shots.slice(0, 5).forEach((s, k) => {
+    const t = document.createElement('button'); t.type = 'button';
+    t.setAttribute('aria-label', `Fotografia ${k + 1}`); t.setAttribute('aria-current', k === 0 ? 'true' : 'false');
+    t.innerHTML = `<img alt="" loading="lazy" src="${s}">`;
+    t.addEventListener('click', () => {
+      img.src = s;
+      $('featThumbs').querySelectorAll('button').forEach(x => x.setAttribute('aria-current', x === t ? 'true' : 'false'));
+    });
+    $('featThumbs').appendChild(t);
+  });
+}
+
+function setupForm(){
+  $('contactForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target, nome = f.nome.value.trim();
+    if(!nome){ f.nome.focus(); toast('Indique o seu nome'); return; }
+    const parts = [`Olá! Sou ${nome}${f.telefone.value.trim() ? ' (' + f.telefone.value.trim() + ')' : ''}.`];
+    parts.push(f.carro.value ? `Tenho interesse no ${f.carro.value}.` : 'Gostava de agendar uma visita ao stand.');
+    if(f.mensagem.value.trim()) parts.push(f.mensagem.value.trim());
+    window.open(waLink(parts.join(' ')), '_blank', 'noopener');
+  });
+}
+
+function setupReveal(){
+  const els = document.querySelectorAll('.reveal');
+  if(reduced || !('IntersectionObserver' in window)){ els.forEach(el => el.classList.add('in')); return; }
+  const io = new IntersectionObserver(entries => entries.forEach(en => {
+    if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+  }), {rootMargin: '0px 0px -8% 0px'});
+  els.forEach(el => io.observe(el));
+}
+function updateThumbs(active){
+  const track = $('thumbs');
+  [...track.children].forEach((b, i) => b.setAttribute('aria-current', i === active ? 'true' : 'false'));
+  const b = track.children[active];
+  if(b) track.scrollTo({left: b.offsetLeft - (track.clientWidth - b.offsetWidth) / 2, behavior: reduced ? 'auto' : 'smooth'});
+}
+
+/* =========================================================
+   TRANSICIÓN
+   ========================================================= */
+function renderSides(){
+  if(cars.length < 2){ carPrev.hidden = carNext.hidden = true; return; }
+  resolveSrc(cars[mod(idx - 1)]).then(s => setCarImage(carPrev, s));
+  resolveSrc(cars[mod(idx + 1)]).then(s => setCarImage(carNext, s));
+}
+function resetDragStyles(){
+  carActive.style.transform = '';
+  carPrev.style.transform = carNext.style.transform = '';
+}
+
+async function go(dir, fromDx = 0, target = null){
+  if(busy || cars.length < 2) return;
+  busy = true;
+  const nextIdx = target ?? mod(idx + dir);
+  const car = cars[nextIdx];
+  const src = await resolveSrc(car);
+  const W = stage.clientWidth;
+  setMode360(false);
+  hideHint();
+
+  if(reduced){ // fundido simples, sem blur
+    resetDragStyles();
+    await carActive.animate([{opacity:1},{opacity:0}], {duration:180, fill:'forwards'}).finished;
+    idx = nextIdx; setCarImage(carActive, src, fullName(car)); renderPanel(car); renderSides();
+    await carActive.animate([{opacity:0},{opacity:1}], {duration:220}).finished;
+    carActive.getAnimations().forEach(a => a.cancel());
+    preloadAround(); busy = false; return;
+  }
+
+  // 1) Saída: o carro atual acelera para o lado com blur + 2 "fantasmas"
+  const ghosts = [1, .38, .16].map((op, g) => {
+    const c = carActive.cloneNode(true);
+    c.removeAttribute('id'); c.classList.add('car--ghost'); c.setAttribute('aria-hidden', 'true');
+    c.style.transform = `translateX(${fromDx}px)`;
+    c.style.opacity = g ? 0 : 1;
+    stage.insertBefore(c, carActive);
+    c.animate([
+      {transform:`translateX(${fromDx}px) scaleX(1)`, filter:'blur(0px)', opacity: op},
+      {transform:`translateX(${-dir * W * .5}px) scaleX(1.06)`, filter:'blur(6px)', opacity: op * .8, offset:.45},
+      {transform:`translateX(${-dir * W * 1.2}px) scaleX(1.1)`, filter:'blur(14px)', opacity: 0}
+    ], {duration:460, delay:g * 40, easing:'cubic-bezier(.5,0,.75,.2)', fill:'both'});
+    return c;
+  });
+
+  // Laterais apagam-se enquanto o palco muda
+  [carPrev, carNext].forEach(s => { s.style.transform = ''; s.animate([{opacity:1},{opacity:0}], {duration:160, fill:'forwards'}); });
+
+  kickPlatform(dir);
+  idx = nextIdx;
+  renderPanel(car);
+
+  // 2) Entrada: chega do lado oposto, trava e "aterra" com ressalto
+  carActive.style.transform = '';
+  setCarImage(carActive, src, fullName(car));
+  const enter = carActive.animate([
+    {transform:`translateX(${dir * W * .95}px) translateY(-8px) scale(.94)`, filter:'blur(10px)', opacity:0, offset:0},
+    {transform:`translateX(${dir * W * .22}px) translateY(-12px) scale(.98)`, filter:'blur(3px)', opacity:1, offset:.38},
+    {transform:`translateX(${-dir * 16}px) translateY(0px) scale(1.01)`, filter:'blur(0px)', opacity:1, offset:.68},
+    {transform:`translateX(${dir * 5}px) translateY(-5px) scale(1)`, filter:'blur(0px)', opacity:1, offset:.84},
+    {transform:'translateX(0px) translateY(0px) scale(1)', filter:'blur(0px)', opacity:1, offset:1}
+  ], {duration:680, delay:90, easing:'cubic-bezier(.22,.9,.3,1)', fill:'backwards'});
+
+  await enter.finished;
+  ghosts.forEach(g => g.remove());
+  renderSides();
+  [carPrev, carNext].forEach(s => {
+    s.getAnimations().forEach(a => a.cancel());
+    s.animate([{opacity:0},{opacity:1}], {duration:320, easing:'ease-out'});
+  });
+  preloadAround();
+  busy = false;
+}
+
+function jumpTo(i){
+  if(i === idx || busy) return;
+  const fwd = mod(i - idx), back = mod(idx - i);
+  go(fwd <= back ? 1 : -1, 0, i);
+}
+
+function springBack(dx){
+  resetDragStyles();
+  if(reduced || !dx) return;
+  carActive.animate([
+    {transform:`translateX(${dx}px)`},
+    {transform:`translateX(${-dx * .12}px)`, offset:.6},
+    {transform:`translateX(${dx * .04}px)`, offset:.85},
+    {transform:'translateX(0px)'}
+  ], {duration:460, easing:'cubic-bezier(.2,.8,.2,1)'});
+}
+
+/* =========================================================
+   SWIPE — Pointer Events (toque + rato), segue o dedo
+   ========================================================= */
+let drag = null;
+function applyDrag(dx){
+  carActive.style.transform = `translateX(${dx}px) rotate(${(dx * .004).toFixed(3)}deg)`;
+  const sx = carActive.offsetWidth * .66;
+  carPrev.style.transform = `translateX(${-sx + dx * .35}px) translateY(-14%) scale(.52)`;
+  carNext.style.transform = `translateX(${sx + dx * .35}px) translateY(-14%) scale(.52)`;
+}
+stage.addEventListener('pointerdown', e => {
+  if(busy || e.button > 0 || e.target.closest('button,a')) return;
+  drag = {id:e.pointerId, x:e.clientX, y:e.clientY, dx:0, axis:null, f0:frame, s:[{x:e.clientX, t:e.timeStamp}]};
+});
+stage.addEventListener('pointermove', e => {
+  if(!drag || e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if(!drag.axis){
+    if(Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+    drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    if(drag.axis === 'y'){ drag = null; return; }   // deixa o scroll vertical seguir
+    stage.setPointerCapture(e.pointerId);
+    stage.classList.add('is-dragging');
+    carActive.getAnimations().forEach(a => a.cancel());
+  }
+  drag.dx = dx;
+  drag.s.push({x:e.clientX, t:e.timeStamp});
+  if(drag.s.length > 6) drag.s.shift();
+  if(mode360){ scrub360(dx); return; }
+  applyDrag(dx);
+});
+function endDrag(e){
+  if(!drag || e.pointerId !== drag.id) return;
+  const d = drag; drag = null;
+  stage.classList.remove('is-dragging');
+  if(d.axis !== 'x' || mode360) return;
+  const a = d.s[0], b = d.s[d.s.length - 1];
+  const v = (b.x - a.x) / Math.max(1, b.t - a.t);       // px/ms
+  const W = stage.clientWidth;
+  if(Math.abs(d.dx) > W * .2 || (Math.abs(v) > .45 && Math.abs(d.dx) > 24)){
+    const dir = d.dx < 0 ? 1 : -1;
+    carPrev.style.transform = carNext.style.transform = '';
+    go(dir, d.dx);
+  } else springBack(d.dx);
+}
+stage.addEventListener('pointerup', endDrag);
+stage.addEventListener('pointercancel', endDrag);
+
+$('prevBtn').addEventListener('click', () => go(-1));
+$('nextBtn').addEventListener('click', () => go(1));
+document.addEventListener('keydown', e => {
+  if(e.target.closest('input,textarea,select,dialog')) return;
+  if(e.key === 'ArrowRight'){ e.preventDefault(); go(1); }
+  if(e.key === 'ArrowLeft'){ e.preventDefault(); go(-1); }
+});
+
+function hideHint(){ $('hint').classList.add('hide'); }
+
+/* =========================================================
+   360° — estrutura pronta: se car.frames tiver 24–36 imagens,
+   arrastar sobre o carro troca de frame.
+   ========================================================= */
+function update360(car){
+  const has = Array.isArray(car.frames) && car.frames.length > 1;
+  $('btn360tag').textContent = has ? '' : 'Em breve';
+  $('btn360tag').hidden = has;
+  $('btn360').classList.toggle('is-live', has && !reduced);
+  $('btn360').setAttribute('aria-label', has ? 'Ativar vista 360 graus' : 'Vista 360 graus (em breve)');
+}
+function setMode360(on){
+  const was = mode360;
+  mode360 = on;
+  $('btn360').setAttribute('aria-pressed', on ? 'true' : 'false');
+  if(was && !on){ // volta à imagem estática, só se o carro não mudou entretanto
+    const c = cars[idx];
+    resolveSrc(c).then(s => { if(!mode360 && cars[idx] === c) setCarImage(carActive, s, fullName(c)); });
+  }
+}
+function scrub360(dx){
+  const f = cars[idx].frames, n = f.length;
+  const step = stage.clientWidth / n / 1.2;                // ~1,2 ecrãs por volta
+  const i = ((drag.f0 - Math.round(dx / step)) % n + n) % n;
+  if(i !== frame){ frame = i; setCarImage(carActive, f[i], fullName(cars[idx])); }
+}
+// Ao ativar: uma volta completa automática (mostra que é 360° de verdade)
+function autoSpin(car){
+  if(reduced) return;
+  const n = car.frames.length, t0 = performance.now(), dur = 2200;
+  const step = t => {
+    if(!mode360 || cars[idx] !== car || drag) return;
+    const p = Math.min(1, (t - t0) / dur), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    const i = Math.round(e * n) % n;
+    if(i !== frame){ frame = i; setCarImage(carActive, car.frames[i], fullName(car)); }
+    if(p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+$('btn360').addEventListener('click', () => {
+  const car = cars[idx];
+  if(!(car.frames && car.frames.length > 1)){ toast('Vista 360° em breve'); return; }
+  if(mode360){ setMode360(false); return; }
+  if(busy) return;
+  busy = true;
+  if(!car._framesReady) toast('A carregar vista 360°…');
+  car._framesReady = car._framesReady || Promise.all(car.frames.map(s => loadImg(s).catch(() => {}))); // pré-carga dos frames
+  car._framesReady.then(() => {
+    busy = false;
+    if(cars[idx] !== car) return;
+    frame = 0; setMode360(true); setCarImage(carActive, car.frames[0], fullName(car));
+    autoSpin(car);
+    toast('Arraste sobre o carro para o rodar');
+  });
+});
+
+/* Tema claro / escuro */
+function applyTheme(t, animate){
+  const root = document.documentElement;
+  if(animate && !reduced){ root.classList.add('theme-anim'); setTimeout(() => root.classList.remove('theme-anim'), 450); }
+  if(t === 'light') root.dataset.theme = 'light'; else delete root.dataset.theme;
+  document.querySelector('meta[name="theme-color"]').content = t === 'light' ? '#ffffff' : '#0a0c0b';
+  $('themeBtn').setAttribute('aria-label', t === 'light' ? 'Mudar para tema escuro' : 'Mudar para tema claro');
+  try{ localStorage.setItem('dp-theme', t); }catch(e){}
+}
+applyTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+$('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light', true));
+
+/* Menu móvel */
+$('burger').addEventListener('click', () => {
+  const open = $('header').classList.toggle('open');
+  $('burger').setAttribute('aria-expanded', open);
+  $('burger').setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+});
+$('mnav').addEventListener('click', e => { if(e.target.closest('a')){ $('header').classList.remove('open'); $('burger').setAttribute('aria-expanded', false); } });
+
+
+/* =========================================================
+   ARRANQUE — animação de entrada (< 1,5 s)
+   ========================================================= */
+async function init(){
+  setupContacts();
+  requestAnimationFrame(spinLoop);
+  if(!reduced) $('led').animate([{transform:'scaleX(0)', opacity:0},{transform:'scaleX(1)', opacity:1}], {duration:700, easing:'cubic-bezier(.2,.8,.2,1)'});
+
+  cars = loadCars();
+  buildThumbs();
+  buildStock();
+  buildFeature();
+  setupForm();
+  setupReveal();
+  $('year').textContent = new Date().getFullYear();
+  const first = cars[0];
+  const src = await resolveSrc(first);
+  setCarImage(carActive, src, fullName(first));
+  renderPanel(first);
+  renderSides();
+  preloadAround();
+
+  if(!reduced){
+    carActive.animate([
+      {transform:'translateY(36px) scale(.9)', filter:'blur(12px)', opacity:0},
+      {transform:'translateY(-8px) scale(1.01)', filter:'blur(0px)', opacity:1, offset:.7},
+      {transform:'translateY(0px) scale(1)', filter:'blur(0px)', opacity:1}
+    ], {duration:900, easing:'cubic-bezier(.22,.9,.3,1)'});
+    [carPrev, carNext].forEach(s => s.animate([{opacity:0},{opacity:0, offset:.4},{opacity:1}], {duration:1000}));
+    kickPlatform(1);
+  }
+  setTimeout(hideHint, 5000);
+}
+init();
+})();
+</script>
+</body>
+</html>
