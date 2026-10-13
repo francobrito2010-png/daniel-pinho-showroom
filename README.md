@@ -38,16 +38,32 @@ Tirados do site do stand:
 
 **Tema claro / escuro:** botão sol/lua no cabeçalho. O padrão é o escuro (showroom). O claro é branco e verde, como o site atual. A escolha fica guardada no navegador do visitante.
 
-## Como pôr mais carros no showroom
+## Como pôr mais carros no showroom (automático)
 
-1. **Foto**: as fotos do stand já são todas iguais (3/4 frente, à porta do stand). Serve a primeira foto do anúncio.
-2. **Remover o fundo**: com [remove.bg](https://www.remove.bg), no iPhone (manter o dedo sobre o carro → "Copiar") ou no Photoshop (*Selecionar assunto*). Rever o teto e os vidros, onde às vezes fica um pedaço da fachada.
-3. **Recortar e exportar**: recortar rente ao carro e exportar em **WebP transparente**. Guardar em `cars/`.
-4. **Em `cars.js`**: na viatura, acrescentar `"showroom": 13, "imagem": "cars/nome.webp", "potencia_cv": …, "caixa": "Automática", "cor_nome": "…", "interior": "…"`.
+A pasta `tools/` tem a ferramenta que faz os recortes do showroom:
 
-A imagem assenta pela base (rodas) na plataforma, por isso o recorte rente em baixo é o que garante que todos os carros "pousam" à mesma altura.
+```bash
+cd tools
+npm install                               # só da primeira vez
+npm run recortar -- 1722938               # id da viatura em cars.js
+npm run recortar -- --todos               # refaz todos os carros do showroom
+npm run recortar -- 1722938 --variantes   # compara: rodas detetadas | 50 % | 100 %
+npm run recortar -- 1722938 --nivel 0.3   # quanto nivelar (0 = nada, 0.5 = padrão)
+npm run recortar -- 1726224 --foto 1      # usar outra foto do anúncio
+```
 
-As fotos do CDN têm ~800 px de largura. Os recortes ficam com ~600 px e, num ecrã grande, aparecem um pouco ampliados. Para máxima nitidez, pedir ao stand as fotos originais.
+O que faz:
+1. **Foto original em 2100 px**, a variante `-0` do CDN do stand. Os anúncios mostram a `-6`, com só 800 px.
+2. **Recorte com BiRefNet**, um modelo de IA de segmentação (licença MIT) que corre no próprio computador, sem custos. Na primeira vez é preciso descarregar o modelo (~1 GB) para `tools/.models/birefnet.onnx`:
+   `curl -L -o tools/.models/birefnet.onnx https://huggingface.co/onnx-community/BiRefNet-ONNX/resolve/main/onnx/model.onnx`
+3. **Limpeza**: fica só a mancha principal (o carro). Os restos da fachada e os reflexos soltos saem.
+4. **Nivelar**: deteta onde as rodas tocam no chão e endireita o carro 50 % do caminho, sem entortar as verticais. A 100 % as rodas ficam na mesma linha, mas o carro parece "mergulhar".
+5. **Exporta** um WebP transparente de até 1800 px para `cars/`, com o nome do campo `imagem`.
+6. Gera `tools/.work/folha.png` com todos os recortes, para rever de uma vez.
+
+Para um carro novo, primeiro acrescentar em `cars.js`: `"showroom": 13, "imagem": "cars/nome.webp", "potencia_cv": …, "caixa": "Automática", "cor_nome": "…", "interior": "…"`.
+
+O Aston Martin não passa pela ferramenta, porque tem os 6 ângulos do 360° feitos à parte.
 
 ## Vista 360°
 
