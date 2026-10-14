@@ -156,17 +156,22 @@ img{display:block;max-width:100%}
 .vignette{inset:0;background:radial-gradient(ellipse 85% 90% at 50% 55%,transparent 55%,rgba(0,0,0,.65) 100%);z-index:4}
 
 /* Plataforma giratória */
+/* Pedestal: um quadrado W×W achatado na vertical (scaleY) vira a elipse do chão.
+   O JS (fitFloor) escolhe o centro e o achatamento para as duas rodas caírem dentro. */
 .turntable{
-  position:absolute;left:50%;
-  width:calc(var(--car-w) * 1.04);aspect-ratio:1;
-  margin-left:calc(var(--car-w) * -.52);
-  bottom:calc(var(--floor-y) - var(--car-w) * .47);   /* compensa a perspetiva: o carro assenta no centro do disco */
-  perspective:calc(var(--car-w) * 2.2);
-  pointer-events:none;z-index:0;
+  position:absolute;left:0;top:0;
+  width:calc(var(--car-w) * 1.12);aspect-ratio:1;
+  transform-origin:50% 50%;
+  pointer-events:none;z-index:0;visibility:hidden;   /* aparece quando o JS a posiciona */
+}
+.tt-side{ /* canto do pedestal: a mesma elipse, mais abaixo, por trás do tampo */
+  position:absolute;inset:0;border-radius:50%;
+  transform:translateY(var(--tt-esp, 0px));
+  background:linear-gradient(180deg,#0b0e0d 0%,#050606 60%,#000 100%);
+  box-shadow:0 0 0 1.5px rgba(var(--accent-rgb),.35),0 30px 60px -10px rgba(0,0,0,.6);
 }
 .tt-disc{
   position:absolute;inset:0;border-radius:50%;
-  transform:rotateX(78deg);
   background:
     repeating-conic-gradient(from 0deg,rgba(255,255,255,.035) 0 2deg,transparent 2deg 15deg),
     radial-gradient(circle,#1b201e 0%,#131715 58%,#0c0f0e 70%,#18201c 71%,#0f1312 100%);
@@ -532,6 +537,7 @@ a.service{display:flex;flex-direction:column;color:inherit}
   radial-gradient(circle,#fbfbfa 0%,#efefed 58%,#e3e3e0 70%,#d6d6d3 71%,#e9e9e6 100%);
   box-shadow:0 0 0 2px rgba(25,100,77,.75),0 0 30px 4px rgba(25,100,77,.12),inset 0 0 50px rgba(0,0,0,.08)}
 :root[data-theme="light"] .tt-disc::before{border-color:rgba(0,0,0,.08)}
+:root[data-theme="light"] .tt-side{background:linear-gradient(180deg,#d4d8d6 0%,#bfc4c2 55%,#aab0ae 100%);box-shadow:0 0 0 1.5px rgba(25,100,77,.45),0 26px 50px -12px rgba(0,0,0,.22)}
 :root[data-theme="light"] .tt-flash{box-shadow:0 0 0 3px var(--brand),0 0 50px 10px rgba(25,100,77,.25)}
 :root[data-theme="light"] .car--side{filter:blur(3px) contrast(.55) brightness(1.2) saturate(.5)}
 :root[data-theme="light"] .car::before{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,0,0,.55),transparent 72%)}
@@ -628,6 +634,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
     </div>
 
     <div class="turntable" aria-hidden="true">
+      <div class="tt-side"></div>
       <div class="tt-disc" id="ttDisc"><div class="tt-flash" id="ttFlash"></div></div>
     </div>
 
@@ -980,26 +987,39 @@ function setCarImage(el, src, alt){
   if(el === carActive) fitFloor(src);
 }
 
-/* Chão virtual: as fotos são 3/4 (a roda de trás aparece mais acima). Em vez de deformar o carro,
-   a plataforma sobe e "abre" a perspetiva até ficar por baixo dos dois pontos de apoio
-   (calculados por tools/rodas.mjs e guardados em cars.js → "rodas"). */
-const floor = {rx: 78, ty: 0}, floorCur = {rx: 78, ty: 0};
+/* Pedestal virtual: as fotos são 3/4 (a roda de trás aparece mais acima). Em vez de deformar o carro,
+   a elipse do pedestal é calculada para que as duas rodas (tools/rodas.mjs → cars.js "rodas")
+   caiam dentro do tampo, com margem — o carro fica "em cima" do pedestal em todas as fotos.
+   floor = {cx, cy, k}: centro em px do palco e achatamento (altura/largura da elipse). */
+const turntableEl = document.querySelector('.turntable');
+const floor = {cx: null, cy: 0, k: .21}, floorCur = {cx: null, cy: 0, k: .21};
 let floorSrc = null;
+const MARGEM = .65;            // as rodas ficam a 65 % do raio: bem dentro do tampo, não na borda
 function fitFloor(src){
   floorSrc = src;
   const car = cars.find(c => c.rodas && c.rodas[src]), pts = car && car.rodas[src];
   const marks = carActive.querySelectorAll(':scope > .tyre');
-  if(!pts){ floor.rx = 78; floor.ty = 0; marks.forEach(m => m.hidden = true); carActive.classList.remove('has-floor'); return; }
+  const W = carActive.offsetWidth, H = carActive.offsetHeight, X0 = carActive.offsetLeft, Y0 = carActive.offsetTop;
+  if(!pts){                    // sem pontos: pedestal clássico centrado por baixo do carro
+    floor.cx = X0 + W / 2; floor.cy = Y0 + H - W * .02; floor.k = .21;
+    marks.forEach(m => m.hidden = true); carActive.classList.remove('has-floor'); return;
+  }
   const im = new Image();
   const apply = () => {
     if(floorSrc !== src || !im.naturalWidth) return;
-    const W = carActive.offsetWidth, H = carActive.offsetHeight, tt = document.querySelector('.turntable').offsetWidth;
-    const k = Math.min(W / im.naturalWidth, H / im.naturalHeight), dw = im.naturalWidth * k, dh = im.naturalHeight * k;
-    const P = pts.map(([x, y]) => [(W - dw) / 2 + x * dw, H - dh + y * dh]);
-    const acima = H - (P[0][1] + P[1][1]) / 2;            // altura média dos apoios acima da base do carro
-    const dy = Math.abs(P[0][1] - P[1][1]);
-    floor.rx = Math.acos(Math.min(.5, Math.max(.2, (dy / 2 + W * .06) / (tt / 2)))) * 180 / Math.PI;
-    floor.ty = -(acima - tt * .05);                       // o centro do disco fica à altura média das rodas
+    const s = Math.min(W / im.naturalWidth, H / im.naturalHeight), dw = im.naturalWidth * s, dh = im.naturalHeight * s;
+    const P = pts.map(([x, y]) => [(W - dw) / 2 + x * dw, H - dh + y * dh]);      // em px dentro do carro
+    const a = turntableEl.offsetWidth / 2;                                        // raio horizontal
+    // centro: a meio caminho entre o centro do carro e o meio das rodas; ligeiramente abaixo do meio das rodas
+    const cx = (W / 2 + (P[0][0] + P[1][0]) / 2) / 2;
+    const cy = (P[0][1] + P[1][1]) / 2 + Math.abs(P[0][1] - P[1][1]) * .08;
+    // achatamento mínimo para cada roda ficar dentro de MARGEM do raio
+    let b = a * .14;
+    for (const [x, y] of P) {
+      const u = (x - cx) / a, resto = MARGEM * MARGEM - u * u;
+      b = Math.max(b, resto > .02 ? Math.abs(y - cy) / Math.sqrt(resto) : a * .5);
+    }
+    floor.cx = X0 + cx; floor.cy = Y0 + cy; floor.k = Math.min(.5, b / a);
     marks.forEach((m, i) => { m.hidden = false; m.style.left = (P[i][0] / W * 100) + '%'; m.style.top = (P[i][1] / H * 100) + '%'; });
     carActive.classList.add('has-floor');
   };
@@ -1011,16 +1031,22 @@ addEventListener('resize', () => floorSrc && fitFloor(floorSrc));
 /* =========================================================
    ESCENA — plataforma (rotação lenta + impulso na transição)
    ========================================================= */
-const disc = $('ttDisc'), turntableEl = document.querySelector('.turntable');
+const disc = $('ttDisc');
 let rot = 0, extra = 0, extraTarget = 0, lastT = performance.now();
 function spinLoop(t){
   const dt = Math.min(.05, (t - lastT) / 1000); lastT = t;
   if(!reduced) rot += dt * 4;                       // 4°/s em repouso
   extra += (extraTarget - extra) * Math.min(1, dt * 5);
   const e = reduced ? 1 : Math.min(1, dt * 6);
-  floorCur.rx += (floor.rx - floorCur.rx) * e; floorCur.ty += (floor.ty - floorCur.ty) * e;
-  disc.style.transform = `rotateX(${floorCur.rx.toFixed(2)}deg) rotateZ(${(rot + extra).toFixed(2)}deg)`;
-  turntableEl.style.transform = `translateY(${floorCur.ty.toFixed(1)}px)`;
+  if(floor.cx !== null){
+    if(floorCur.cx === null) Object.assign(floorCur, floor);
+    floorCur.cx += (floor.cx - floorCur.cx) * e; floorCur.cy += (floor.cy - floorCur.cy) * e; floorCur.k += (floor.k - floorCur.k) * e;
+    const a = turntableEl.offsetWidth / 2, esp = carActive.offsetWidth * .022;   // espessura do pedestal (px no ecrã)
+    turntableEl.style.transform = `translate(${(floorCur.cx - a).toFixed(1)}px, ${(floorCur.cy - a).toFixed(1)}px) scaleY(${floorCur.k.toFixed(4)})`;
+    turntableEl.style.visibility = 'visible';
+    turntableEl.style.setProperty('--tt-esp', (esp / floorCur.k).toFixed(1) + 'px');
+  }
+  disc.style.transform = `rotate(${(rot + extra).toFixed(2)}deg)`;
   requestAnimationFrame(spinLoop);
 }
 function kickPlatform(dir){

@@ -33,7 +33,16 @@ function tresQuartos(p){
   const lado = dir => {
     const R = dir > 0 ? lowest(p, x1 - .14 * L, x1) : lowest(p, x0, x0 + .14 * L);
     const S = dir > 0 ? highest(p, R - .5 * L, R - .06 * L) : highest(p, R + .06 * L, R + .5 * L);
-    const F = dir > 0 ? lowest(p, S - .3 * L, S) : lowest(p, S, S + .3 * L);
+    // roda da frente: o primeiro "morro" do perfil a partir da embaladeira (não o ponto mais baixo,
+    // que num desportivo com splitter baixo é o para-choques)
+    const passo = -dir, lim = dir > 0 ? Math.max(p.x0, S - .35 * L) : Math.min(p.x1, S + .35 * L);
+    const queda = Math.max(3, p.L * .006);
+    let F = S;
+    for (let x = S; dir > 0 ? x >= lim : x <= lim; x += passo) {
+      if (p.f[x] < 0) continue;
+      if (p.f[x] > p.f[F]) F = x;
+      else if (p.f[F] - p.f[x] > queda && p.f[F] - p.f[S] > queda) break;   // voltou a subir: o pneu acabou
+    }
     return {pts: [F, R], salto: p.f[F] - p.f[S]};
   };
   const d = lado(1), e = lado(-1);
