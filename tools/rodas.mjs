@@ -51,14 +51,48 @@ function tresQuartos(p){
 // Vista de frente: os dois pneus da frente, um em cada ponta.
 const frente = p => [lowest(p, p.x0, p.x0 + .3 * p.L), lowest(p, p.x1 - .3 * p.L, p.x1)];
 
+// Base oval sob o carro, a partir do contorno de baixo (para-choques da frente → traseira):
+// alinhada com a inclinação desse contorno, sobra um pouco à frente e atrás, e pouco pelos lados.
+const BASE = {
+  sobra: .08,    // quanto o oval passa da frente e da traseira (× comprimento do carro no ecrã)
+  altura: .085,  // semi-altura do oval (× comprimento) — estreito: pouco pelas portas
+  subir: .35,    // o centro sobe esta fração da semi-altura acima da linha do contorno (fica por baixo do carro)
+  alturaFrente: .13, subirFrente: .55,   // vista de frente: oval mais fundo, assente nos pneus
+};
+function oval(p, deFrente){
+  const pts = [];
+  for (let x = p.x0; x <= p.x1; x += Math.max(1, Math.round(p.L / 120))) if (p.f[x] >= 0) pts.push([x, p.f[x]]);
+  // reta que melhor segue o contorno (mínimos quadrados) → inclinação do oval
+  const n = pts.length, mx = pts.reduce((s, q) => s + q[0], 0) / n, my = pts.reduce((s, q) => s + q[1], 0) / n;
+  let sxy = 0, sxx = 0; for (const [x, y] of pts) { sxy += (x - mx) * (y - my); sxx += (x - mx) ** 2; }
+  const th = Math.atan(sxy / sxx), c = Math.cos(th), s = Math.sin(th);
+  const uv = pts.map(([x, y]) => [(x - mx) * c + (y - my) * s, -(x - mx) * s + (y - my) * c]);   // u ao longo, v para baixo
+  const u0 = Math.min(...uv.map(q => q[0])), u1 = Math.max(...uv.map(q => q[0])), len = u1 - u0;
+  const A = len / 2 * (1 + 2 * BASE.sobra), uc = (u0 + u1) / 2;
+  // o oval assenta na linha do contorno (rodas e para-choques) e sobe um pouco para debaixo do carro
+  let B = BASE.altura * len, vc = -BASE.subir * B;
+  if (deFrente) {
+    // de frente: o para-choques fica acima dos pneus; o oval assenta nos pneus (pontos mais baixos)
+    // e estende-se para trás, por baixo do carro
+    const vmax = Math.max(...uv.map(q => q[1]));
+    B = BASE.alturaFrente * len; vc = vmax - BASE.subirFrente * B;
+  }
+  const cx = mx + uc * c - vc * s, cy = my + uc * s + vc * c;
+  return {cx, cy, A, B, th: th * 180 / Math.PI};
+}
+
 const stock = lerStock();
 const marcadas = [];
 for (const car of stock.filter(c => c.showroom && c.imagem)) {
-  car.rodas = {};
+  car.rodas = {}; car.base = {};
   for (const img of [...new Set([car.imagem, ...(car.frames || [])])]) {
     const file = path.join(ROOT, img);
     const {data: alpha, info} = await sharp(file).ensureAlpha().extractChannel(3).raw().toBuffer({resolveWithObject: true});
     const {width: w, height: h} = info;
+    const pf = perfil(alpha, w, h);
+    const o = oval(pf, frente(pf).every(x => x >= 0) && pf.L / w < .75);
+    // base: [cx, cy, A, B] divididos pela largura da imagem (escala uniforme) + rotação em graus
+    car.base[img] = [o.cx / w, o.cy / w, o.A / w, o.B / w].map(v => +v.toFixed(4)).concat(+o.th.toFixed(2));
     let pts;
     if (manual[img]) pts = manual[img].map(([x, y]) => [x * w, y * h]);
     else {
@@ -70,8 +104,12 @@ for (const car of stock.filter(c => c.showroom && c.imagem)) {
     pts.sort((a, b) => a[0] - b[0]);
     car.rodas[img] = pts.map(([x, y]) => [+(x / w).toFixed(4), +(y / h).toFixed(4)]);
     const R = Math.round(w / 70), S = Math.max(2, Math.round(w / 350));
-    const svg = `<svg width="${w}" height="${h}"><g fill="none" stroke="#e0115f" stroke-width="${S}">${pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${R}"/>`).join('')}<line x1="${pts[0][0]}" y1="${pts[0][1]}" x2="${pts[1][0]}" y2="${pts[1][1]}"/></g></svg>`;
-    marcadas.push({img, buf: await sharp(file).composite([{input: Buffer.from(svg)}]).png().toBuffer()});
+    // conferência: a base oval (verde) por baixo do carro + os pontos das rodas (rosa)
+    const padY = Math.round(o.B * 2.2), H2 = h + padY;
+    const base = `<svg width="${w}" height="${H2}"><ellipse cx="${o.cx}" cy="${o.cy}" rx="${o.A}" ry="${o.B}" transform="rotate(${o.th} ${o.cx} ${o.cy})" fill="#e3ece7" stroke="#19644D" stroke-width="${S}"/></svg>`;
+    const marcas = `<svg width="${w}" height="${H2}"><g fill="none" stroke="#e0115f" stroke-width="${S}">${pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${R}"/>`).join('')}</g></svg>`;
+    marcadas.push({img, buf: await sharp({create: {width: w, height: H2, channels: 4, background: '#ffffff'}})
+      .composite([{input: Buffer.from(base)}, {input: file, left: 0, top: 0}, {input: Buffer.from(marcas)}]).png().toBuffer()});
   }
   console.log(`✔ ${car.marca} ${car.modelo}: ${Object.keys(car.rodas).length} imagens`);
 }

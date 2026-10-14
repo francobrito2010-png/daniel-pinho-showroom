@@ -69,7 +69,13 @@ Os carros com rotação (campo `frames`) são feitos com `npm run girar`, ver ab
 
 ## Chão virtual
 
-As fotos são 3/4, por isso a roda de trás aparece mais acima do que a da frente. Em vez de deformar o carro, **a plataforma funciona como um pedestal que se ajusta a cada foto**. A elipse do tampo é calculada para as duas rodas caírem dentro, a 65 % do raio (`MARGEM` em `index.html`), e tem um canto com espessura, para o carro parecer pousado em cima. Cada pneu tem uma marca de contacto discreta. Na vista de frente, como os dois pneus estão à mesma altura, o pedestal fica mais achatado.
+As fotos são 3/4, por isso a roda de trás aparece mais acima do que a da frente. Em vez de deformar o carro, **a base é um oval moldado à forma de cada carro**:
+- segue o contorno de baixo do carro, do para-choques da frente à traseira, com a mesma inclinação da foto;
+- passa um pouco da frente e da traseira, e pouco pelos lados (portas);
+- na vista de frente assenta nos pneus e estende-se para trás, por baixo do carro;
+- tem um canto com espessura (parece um suporte) e uma luz verde que percorre o rebordo.
+
+`npm run rodas` calcula o oval de cada imagem e grava-o em `cars.js` (`"base"`). As medidas ajustam-se em `BASE`, no início de `tools/rodas.mjs`: `sobra` (frente e traseira), `altura` (largura do oval) e `subir`. Cada pneu tem também uma marca de contacto discreta.
 
 ```bash
 cd tools
