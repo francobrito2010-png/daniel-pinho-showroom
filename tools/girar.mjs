@@ -13,6 +13,18 @@ import sharp from 'sharp';
 import {ROOT, WORK, CDN, TRANSP, die, lerStock, gravarStock, baixar, recortar, webp, folha} from './lib.mjs';
 
 const MAX_W = 1800;
+
+// Inclinação (graus) da vista de frente: a reta entre o ponto mais baixo de cada pneu
+// (o mais baixo no terço esquerdo e no terço direito do carro). Positivo = lado direito mais baixo.
+function inclinacaoFrente(alpha, w, h){
+  const fundo = new Int32Array(w).fill(-1);
+  for (let x = 0; x < w; x++) for (let y = h - 1; y >= 0; y--) if (alpha[y * w + x] > 160) { fundo[x] = y; break; }
+  const xs = []; for (let x = 0; x < w; x++) if (fundo[x] >= 0) xs.push(x);
+  const x0 = xs[0], x1 = xs.at(-1), L = x1 - x0;
+  const baixo = (a, b) => { let bx = a; for (let x = a; x <= b; x++) if (fundo[x] > fundo[bx]) bx = x; return bx; };
+  const e = baixo(x0, Math.round(x0 + L / 3)), d = baixo(Math.round(x1 - L / 3), x1);
+  return Math.atan2(fundo[d] - fundo[e], d - e) * 180 / Math.PI;
+}
 const gal = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'galerias.json'), 'utf8'));
 const ids = process.argv.slice(2).filter(a => !a.startsWith('--'));
 const alvo = ids.length ? ids : Object.keys(gal._giro);
@@ -27,10 +39,19 @@ for (const id of alvo) {
 
   // 1. recorta cada ângulo (a foto 0 reutiliza a cache de recortar.mjs)
   const cortes = [];
-  for (const n of angulos) {
+  for (const [k, n] of angulos.entries()) {
     const url = CDN + id + '/' + gal[id][n] + '-0.webp';
-    const {rgba, w, h} = await recortar(await baixar(url, `${id}-${n}`));
-    const png = await sharp(rgba, {raw: {width: w, height: h, channels: 4}}).trim({background: TRANSP, threshold: 1}).png().toBuffer();
+    const {rgba, alpha, w, h} = await recortar(await baixar(url, `${id}-${n}`));
+    let img = sharp(rgba, {raw: {width: w, height: h, channels: 4}});
+    // vista de frente (o ângulo do meio): endireita a foto para os dois pneus ficarem à mesma altura
+    if (angulos.length === 3 && k === 1) {
+      const g = inclinacaoFrente(alpha, w, h);
+      if (Math.abs(g) > .3 && Math.abs(g) < 8) {
+        img = sharp(await img.rotate(-g, {background: TRANSP}).png().toBuffer());
+        console.log(`  · vista de frente nivelada (${g.toFixed(1)}°)`);
+      }
+    }
+    const png = await img.trim({background: TRANSP, threshold: 1}).png().toBuffer();
     const m = await sharp(png).metadata();
     cortes.push({png, w: m.width, h: m.height});
   }
