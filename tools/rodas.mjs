@@ -59,6 +59,23 @@ const BASE = {
   subir: .35,    // o centro sobe esta fração da semi-altura acima da linha do contorno (fica por baixo do carro)
   alturaFrente: .13, subirFrente: .55,   // vista de frente: oval mais fundo, assente nos pneus
 };
+// Vista 3/4 (medido nos traços do Franco sobre 4 carros, em frações do comprimento do carro no ecrã):
+// a ponta da frente fica um pouco fora e abaixo do para-choques; a de trás contorna a roda traseira
+// e sobe até à altura do topo dela; o oval desce bem por baixo da roda da frente; forma de ovo.
+const OVO = {
+  frente: [.04, .07],    // ponta da frente: para fora e para baixo do canto inferior do para-choques
+  tras: [.12, -.09],     // ponta de trás: para fora e para cima do apoio da roda traseira
+  altura: .17,           // semi-altura do oval
+};
+function ovo(p, F, R){
+  const s = R[0] > F[0] ? 1 : -1;                        // 1: frente à esquerda
+  const xb = s > 0 ? lowest(p, p.x0, p.x0 + .05 * p.L) : lowest(p, p.x1 - .05 * p.L, p.x1);
+  const L = p.L;
+  const tF = [xb - s * OVO.frente[0] * L, p.f[xb] + OVO.frente[1] * L];
+  const tR = [R[0] + s * OVO.tras[0] * L, R[1] + OVO.tras[1] * L];
+  const th = Math.atan2(tR[1] - tF[1], tR[0] - tF[0]);  // eixo local: da frente para trás (frente = lado esquerdo do elemento)
+  return {cx: (tF[0] + tR[0]) / 2, cy: (tF[1] + tR[1]) / 2, A: Math.hypot(tR[0] - tF[0], tR[1] - tF[1]) / 2, B: OVO.altura * L, th: th * 180 / Math.PI, ovo: 1};
+}
 function oval(p, deFrente){
   const pts = [];
   for (let x = p.x0; x <= p.x1; x += Math.max(1, Math.round(p.L / 120))) if (p.f[x] >= 0) pts.push([x, p.f[x]]);
@@ -90,22 +107,20 @@ for (const car of stock.filter(c => c.showroom && c.imagem)) {
     const {data: alpha, info} = await sharp(file).ensureAlpha().extractChannel(3).raw().toBuffer({resolveWithObject: true});
     const {width: w, height: h} = info;
     const pf = perfil(alpha, w, h);
-    const o = oval(pf, frente(pf).every(x => x >= 0) && pf.L / w < .75);
-    // base: [cx, cy, A, B] divididos pela largura da imagem (escala uniforme) + rotação em graus
-    car.base[img] = [o.cx / w, o.cy / w, o.A / w, o.B / w].map(v => +v.toFixed(4)).concat(+o.th.toFixed(2));
-    let pts;
+    // a vista de frente é estreita (cabe numa tela larga); a 3/4 ocupa a largura toda
+    const deFrente = frente(pf).every(x => x >= 0) && pf.L / w < .75;
+    let pts, F, Rr;
     if (manual[img]) pts = manual[img].map(([x, y]) => [x * w, y * h]);
-    else {
-      const p = perfil(alpha, w, h);
-      // a vista de frente é estreita (cabe numa tela larga); a 3/4 ocupa a largura toda
-      const xs = (frente(p).every(x => x >= 0) && p.L / w < .75 ? frente(p) : tresQuartos(p));
-      pts = xs.map(x => [x, p.f[x]]);
-    }
+    else pts = (deFrente ? frente(pf) : tresQuartos(pf)).map(x => [x, pf.f[x]]);
+    if (!deFrente) [F, Rr] = pts[0][1] > pts[1][1] ? [pts[0], pts[1]] : [pts[1], pts[0]];   // a da frente é a mais baixa
+    const o = deFrente ? oval(pf, true) : ovo(pf, F, Rr);
+    // base: [cx, cy, A, B] divididos pela largura da imagem (escala uniforme), rotação em graus, forma (1 = ovo)
+    car.base[img] = [o.cx / w, o.cy / w, o.A / w, o.B / w].map(v => +v.toFixed(4)).concat(+o.th.toFixed(2), o.ovo || 0);
     pts.sort((a, b) => a[0] - b[0]);
     car.rodas[img] = pts.map(([x, y]) => [+(x / w).toFixed(4), +(y / h).toFixed(4)]);
     const R = Math.round(w / 70), S = Math.max(2, Math.round(w / 350));
     // conferência: a base oval (verde) por baixo do carro + os pontos das rodas (rosa)
-    const padY = Math.round(o.B * 2.2), H2 = h + padY;
+    const padY = Math.round(o.B * 1.6), H2 = h + padY;
     const base = `<svg width="${w}" height="${H2}"><ellipse cx="${o.cx}" cy="${o.cy}" rx="${o.A}" ry="${o.B}" transform="rotate(${o.th} ${o.cx} ${o.cy})" fill="#e3ece7" stroke="#19644D" stroke-width="${S}"/></svg>`;
     const marcas = `<svg width="${w}" height="${H2}"><g fill="none" stroke="#e0115f" stroke-width="${S}">${pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${R}"/>`).join('')}</g></svg>`;
     marcadas.push({img, buf: await sharp({create: {width: w, height: H2, channels: 4, background: '#ffffff'}})

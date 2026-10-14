@@ -75,7 +75,7 @@ As fotos são 3/4, por isso a roda de trás aparece mais acima do que a da frent
 - na vista de frente assenta nos pneus e estende-se para trás, por baixo do carro;
 - tem um canto com espessura (parece um suporte) e uma luz verde que percorre o rebordo.
 
-`npm run rodas` calcula o oval de cada imagem e grava-o em `cars.js` (`"base"`). As medidas ajustam-se em `BASE`, no início de `tools/rodas.mjs`: `sobra` (frente e traseira), `altura` (largura do oval) e `subir`. Cada pneu tem também uma marca de contacto discreta.
+`npm run rodas` calcula o oval de cada imagem e grava-o em `cars.js` (`"base"`). Na vista 3/4 tem **forma de ovo**, com as proporções tiradas dos traços do Franco: a ponta da frente fica um pouco fora e abaixo do para-choques, desce bem por baixo da roda da frente e, atrás, contorna a roda traseira até à altura do topo dela. As medidas ajustam-se em `OVO` (3/4) e `BASE` (vista de frente), no início de `tools/rodas.mjs`. Cada pneu tem também uma marca de contacto discreta.
 
 ```bash
 cd tools

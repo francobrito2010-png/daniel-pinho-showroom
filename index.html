@@ -169,13 +169,15 @@ img{display:block;max-width:100%}
   background:linear-gradient(180deg,#0b0e0d 0%,#050606 60%,#000 100%);
   box-shadow:0 0 0 1.5px rgba(var(--accent-rgb),.35),0 22px 40px -12px rgba(0,0,0,.6);
 }
-.tt-ring{ /* luz que percorre o rebordo */
-  position:absolute;inset:-1px;border-radius:50%;
-  background:conic-gradient(from var(--ang, 0deg),transparent 0deg 230deg,rgba(var(--accent-rgb),.0) 240deg,rgba(var(--accent-rgb),.95) 330deg,transparent 360deg);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));
-          mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));
+.tt-ring{ /* luz que percorre o rebordo (borda em gradiente: segue qualquer forma do border-radius) */
+  position:absolute;inset:-1px;border-radius:50%;border:2.5px solid transparent;
+  background:conic-gradient(from var(--ang, 0deg),transparent 0deg 230deg,rgba(var(--accent-rgb),.0) 240deg,rgba(var(--accent-rgb),.95) 330deg,transparent 360deg) border-box;
+  -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+          mask:linear-gradient(#000 0 0) padding-box exclude,linear-gradient(#000 0 0);
   filter:drop-shadow(0 0 4px rgba(var(--accent-rgb),.8));
 }
+/* forma de ovo (vista 3/4): mais larga e redonda à frente (lado esquerdo do elemento), mais fina atrás */
+.turntable.ovo .tt-side,.turntable.ovo .tt-disc,.turntable.ovo .tt-ring,.turntable.ovo .tt-flash{border-radius:58% 42% 42% 58% / 50% 50% 50% 50%}
 .tt-disc{
   position:absolute;inset:0;border-radius:50%;
   background:
@@ -1013,7 +1015,7 @@ function fitFloor(src){
   const marks = carActive.querySelectorAll(':scope > .tyre');
   const W = carActive.offsetWidth, H = carActive.offsetHeight, X0 = carActive.offsetLeft, Y0 = carActive.offsetTop;
   if(!pts){                    // sem pontos: oval simples centrado por baixo do carro
-    Object.assign(floor, {cx: X0 + W / 2, cy: Y0 + H - W * .03, A: W * .56, B: W * .1, th: 0});
+    Object.assign(floor, {cx: X0 + W / 2, cy: Y0 + H - W * .03, A: W * .56, B: W * .1, th: 0}); turntableEl.classList.remove('ovo');
     marks.forEach(m => m.hidden = true); carActive.classList.remove('has-floor'); return;
   }
   const im = new Image();
@@ -1026,7 +1028,8 @@ function fitFloor(src){
     const base = car.base && car.base[src];
     if (base) {
       // oval calculado por tools/rodas.mjs a partir do contorno de baixo do carro (em frações da largura da imagem)
-      const [bx, by, bA, bB, bth] = base;
+      const [bx, by, bA, bB, bth, forma] = base;
+      turntableEl.classList.toggle('ovo', forma === 1);
       cx = (W - dw) / 2 + bx * dw; cy = H - dh + by * dw; A = bA * dw; B = bB * dw; th = bth * Math.PI / 180;
     } else if (Math.abs(dy) < .15 * Math.abs(dx)) {
       // vista de frente: os dois pneus da frente; o carro estende-se para trás (para cima no ecrã)
