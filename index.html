@@ -187,10 +187,16 @@ img{display:block;max-width:100%}
   margin-left:calc(var(--car-w) / -2);   /* centrado sem usar transform (transform fica livre p/ animar) */
   z-index:3;will-change:transform;
 }
-.car::before{ /* sombra de contacto */
+.car::before{ /* sombra de contacto genérica (só quando não há pontos de apoio) */
   content:"";position:absolute;left:8%;right:8%;bottom:-5%;height:14%;
   background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,0,0,.85),transparent 72%);
 }
+.car.has-floor::before{display:none}
+/* marca de apoio de cada pneu: só o contacto com o chão, não uma sombra grande */
+.tyre{position:absolute;width:11%;height:3%;transform:translate(-50%,-62%);pointer-events:none;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,0,0,.55),rgba(0,0,0,.2) 45%,transparent 72%)}
+.tyre[hidden]{display:none}
+:root[data-theme="light"] .tyre{background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(20,30,25,.42),rgba(20,30,25,.14) 45%,transparent 72%)}
 .car-body{position:absolute;inset:0;transform-origin:50% 100%;animation:breathe 4.5s ease-in-out infinite alternate}
 @keyframes breathe{from{transform:scale(1)}to{transform:scale(1.01)}}
 .car-img,.car-refl{position:absolute;left:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;pointer-events:none;-webkit-user-drag:none}
@@ -632,6 +638,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
       <div class="car-body"><img class="car-img" alt="" draggable="false"><img class="car-refl" alt="" draggable="false"></div>
     </div>
     <div class="car" id="carActive">
+      <span class="tyre" hidden></span><span class="tyre" hidden></span>
       <div class="car-body"><img class="car-img" alt="" draggable="false"><img class="car-refl" alt="" aria-hidden="true" draggable="false"></div>
     </div>
 
@@ -970,18 +977,50 @@ function setCarImage(el, src, alt){
   el.querySelectorAll('img').forEach(im => { im.src = src; });
   const main = el.querySelector('.car-img');
   if(main) main.alt = alt || '';
+  if(el === carActive) fitFloor(src);
 }
+
+/* Chão virtual: as fotos são 3/4 (a roda de trás aparece mais acima). Em vez de deformar o carro,
+   a plataforma sobe e "abre" a perspetiva até ficar por baixo dos dois pontos de apoio
+   (calculados por tools/rodas.mjs e guardados em cars.js → "rodas"). */
+const floor = {rx: 78, ty: 0}, floorCur = {rx: 78, ty: 0};
+let floorSrc = null;
+function fitFloor(src){
+  floorSrc = src;
+  const car = cars.find(c => c.rodas && c.rodas[src]), pts = car && car.rodas[src];
+  const marks = carActive.querySelectorAll(':scope > .tyre');
+  if(!pts){ floor.rx = 78; floor.ty = 0; marks.forEach(m => m.hidden = true); carActive.classList.remove('has-floor'); return; }
+  const im = new Image();
+  const apply = () => {
+    if(floorSrc !== src || !im.naturalWidth) return;
+    const W = carActive.offsetWidth, H = carActive.offsetHeight, tt = document.querySelector('.turntable').offsetWidth;
+    const k = Math.min(W / im.naturalWidth, H / im.naturalHeight), dw = im.naturalWidth * k, dh = im.naturalHeight * k;
+    const P = pts.map(([x, y]) => [(W - dw) / 2 + x * dw, H - dh + y * dh]);
+    const acima = H - (P[0][1] + P[1][1]) / 2;            // altura média dos apoios acima da base do carro
+    const dy = Math.abs(P[0][1] - P[1][1]);
+    floor.rx = Math.acos(Math.min(.5, Math.max(.2, (dy / 2 + W * .06) / (tt / 2)))) * 180 / Math.PI;
+    floor.ty = -(acima - tt * .05);                       // o centro do disco fica à altura média das rodas
+    marks.forEach((m, i) => { m.hidden = false; m.style.left = (P[i][0] / W * 100) + '%'; m.style.top = (P[i][1] / H * 100) + '%'; });
+    carActive.classList.add('has-floor');
+  };
+  im.onload = apply; im.src = src;
+  if(im.complete) apply();
+}
+addEventListener('resize', () => floorSrc && fitFloor(floorSrc));
 
 /* =========================================================
    ESCENA — plataforma (rotação lenta + impulso na transição)
    ========================================================= */
-const disc = $('ttDisc');
+const disc = $('ttDisc'), turntableEl = document.querySelector('.turntable');
 let rot = 0, extra = 0, extraTarget = 0, lastT = performance.now();
 function spinLoop(t){
   const dt = Math.min(.05, (t - lastT) / 1000); lastT = t;
   if(!reduced) rot += dt * 4;                       // 4°/s em repouso
   extra += (extraTarget - extra) * Math.min(1, dt * 5);
-  disc.style.transform = `rotateX(78deg) rotateZ(${(rot + extra).toFixed(2)}deg)`;
+  const e = reduced ? 1 : Math.min(1, dt * 6);
+  floorCur.rx += (floor.rx - floorCur.rx) * e; floorCur.ty += (floor.ty - floorCur.ty) * e;
+  disc.style.transform = `rotateX(${floorCur.rx.toFixed(2)}deg) rotateZ(${(rot + extra).toFixed(2)}deg)`;
+  turntableEl.style.transform = `translateY(${floorCur.ty.toFixed(1)}px)`;
   requestAnimationFrame(spinLoop);
 }
 function kickPlatform(dir){

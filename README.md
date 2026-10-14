@@ -67,6 +67,17 @@ Para um carro novo, primeiro acrescentar em `cars.js`: `"showroom": 13, "imagem"
 
 Os carros com rotação (campo `frames`) são feitos com `npm run girar`, ver abaixo.
 
+## Chão virtual
+
+As fotos são 3/4, por isso a roda de trás aparece mais acima do que a da frente. Em vez de deformar o carro, **a plataforma ajusta-se a cada foto**: sobe e abre a perspetiva até ficar por baixo dos dois pontos de apoio, e cada pneu tem uma marca de contacto discreta. Na vista de frente, como os dois pneus estão à mesma altura, a plataforma fica plana.
+
+```bash
+cd tools
+npm run rodas    # depois de recortar/girar: deteta os apoios e grava "rodas" em cars.js
+```
+
+Gera `tools/.work/rodas.png` com os pontos marcados, para conferir. Se algum ponto ficar mal, pode corrigir-se à mão em `galerias.json` → `"_rodas": {"cars/x.webp": [[x, y], [x, y]]}`, com valores de 0 a 1.
+
 ## Rotação (botão "Rodar")
 
 Os anúncios do stand têm **3 fotos exteriores** de cada carro: 3/4 esquerda, frente e 3/4 direita. Não há fotos de lado nem de trás, por isso não dá para um 360° completo. O showroom faz uma rotação frontal com esses 3 ângulos: arrastar sobre o carro passa de um ângulo para o outro, com um fundido curto.
