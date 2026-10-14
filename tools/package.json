@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Recorte automático dos carros do showroom (BiRefNet) + nivelar rodas + exportar WebP",
   "scripts": {
-    "recortar": "node recortar.mjs"
+    "recortar": "node recortar.mjs",
+    "girar": "node girar.mjs"
   },
   "dependencies": {
     "onnxruntime-node": "^1.17.3",

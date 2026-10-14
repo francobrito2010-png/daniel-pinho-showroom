@@ -36,7 +36,9 @@ Tirados do site do stand:
 - `--accent: #81C995`: o verde-claro de apoio, para texto, ícones e linhas finas sobre o escuro.
 - Tipografia **Outfit**, formas em pílula, logótipo em moldura fina.
 
-**Tema claro / escuro:** botão sol/lua no cabeçalho. O padrão é o escuro (showroom). O claro é branco e verde, como o site atual. A escolha fica guardada no navegador do visitante.
+**Tema claro / escuro:** botão sol/lua no cabeçalho. O padrão é o **claro, branco e verde, como o site do stand**. O escuro é opcional. A escolha fica guardada no navegador do visitante.
+
+**Tamanho no palco:** todos os carros ocupam a mesma largura e assentam pelas rodas, seja um desportivo ou um SUV.
 
 ## Como pôr mais carros no showroom (automático)
 
@@ -63,11 +65,22 @@ O que faz:
 
 Para um carro novo, primeiro acrescentar em `cars.js`: `"showroom": 13, "imagem": "cars/nome.webp", "potencia_cv": …, "caixa": "Automática", "cor_nome": "…", "interior": "…"`.
 
-O Aston Martin não passa pela ferramenta, porque tem os 6 ângulos do 360° feitos à parte.
+Os carros com rotação (campo `frames`) são feitos com `npm run girar`, ver abaixo.
 
-## Vista 360°
+## Rotação (botão "Rodar")
 
-Se um carro tiver `"frames": ["cars/…/1.webp", …]` (várias imagens à volta do carro, com o mesmo enquadramento), o botão **360°** fica ativo e arrastar sobre o carro roda-o. Agora só o Aston Martin Vantage Roadster tem frames (6 ângulos). Nos outros, o botão mostra "Em breve".
+Os anúncios do stand têm **3 fotos exteriores** de cada carro: 3/4 esquerda, frente e 3/4 direita. Não há fotos de lado nem de trás, por isso não dá para um 360° completo. O showroom faz uma rotação frontal com esses 3 ângulos: arrastar sobre o carro passa de um ângulo para o outro, com um fundido curto.
+
+```bash
+cd tools
+npm run girar               # todos os carros de "_giro" em tools/galerias.json
+npm run girar -- 1722938    # só um carro
+```
+
+- `tools/galerias.json` guarda as primeiras fotos de cada anúncio. `_giro` diz que fotos são os 3 ângulos (índices).
+- A ferramenta recorta os 3 ângulos, põe todos à mesma altura (o carro não "cresce" ao rodar) e grava `cars/<nome>/0.webp, 1.webp, 2.webp`. Também atualiza `frames` em `cars.js`, em vaivém 0 → 1 → 2 → 1.
+- Agora têm rotação 10 dos 12 carros. O Porsche 911 2.4 S e o 992 Carrera 4 GTS só têm uma foto exterior no anúncio.
+- Para um 360° completo é preciso fotografar o carro à volta (24–36 fotos) ou usar uma app como Spyne ou Glo3D. O showroom já aceita qualquer número de `frames`.
 
 ## Publicar no GitHub Pages
 
