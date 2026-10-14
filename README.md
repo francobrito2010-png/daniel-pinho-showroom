@@ -48,7 +48,7 @@ npm install                               # só da primeira vez
 npm run recortar -- 1722938               # id da viatura em cars.js
 npm run recortar -- --todos               # refaz todos os carros do showroom
 npm run recortar -- 1722938 --variantes   # compara: rodas detetadas | 50 % | 100 %
-npm run recortar -- 1722938 --nivel 0.3   # quanto nivelar (0 = nada, 0.5 = padrão)
+npm run recortar -- 1722938 --nivel 0.3   # nivelar as rodas (0 = ângulo original, padrão)
 npm run recortar -- 1726224 --foto 1      # usar outra foto do anúncio
 ```
 
@@ -57,7 +57,7 @@ O que faz:
 2. **Recorte com BiRefNet**, um modelo de IA de segmentação (licença MIT) que corre no próprio computador, sem custos. Na primeira vez é preciso descarregar o modelo (~1 GB) para `tools/.models/birefnet.onnx`:
    `curl -L -o tools/.models/birefnet.onnx https://huggingface.co/onnx-community/BiRefNet-ONNX/resolve/main/onnx/model.onnx`
 3. **Limpeza**: fica só a mancha principal (o carro). Os restos da fachada e os reflexos soltos saem.
-4. **Nivelar**: deteta onde as rodas tocam no chão e endireita o carro 50 % do caminho, sem entortar as verticais. A 100 % as rodas ficam na mesma linha, mas o carro parece "mergulhar".
+4. **Nivelar (opcional, desligado)**: `--nivel` endireita o carro pelas rodas, mas deforma-o. Por isso o padrão é 0, o ângulo original da foto.
 5. **Exporta** um WebP transparente de até 1800 px para `cars/`, com o nome do campo `imagem`.
 6. Gera `tools/.work/folha.png` com todos os recortes, para rever de uma vez.
 

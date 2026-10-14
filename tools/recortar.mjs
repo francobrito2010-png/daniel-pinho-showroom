@@ -26,7 +26,7 @@ fs.mkdirSync(WORK, {recursive: true});
 const args = process.argv.slice(2);
 const opt = (name, def) => { const i = args.indexOf(name); return i >= 0 ? args.splice(i, 2)[1] : def; };
 const fotoIdx = +opt('--foto', 0);
-const nivel = +opt('--nivel', 0.5);           // 0.5 = meio caminho: mais plano sem deformar (1 = rodas na mesma linha, deforma)
+const nivel = +opt('--nivel', 0);             // 0 = ângulo original da foto (padrão; nivelar deforma o carro)
 const todos = args.includes('--todos');
 const variantes = args.includes('--variantes');   // só compara (rodas | 50 % | 100 %), não grava em cars/
 const ids = args.filter(a => !a.startsWith('--'));
