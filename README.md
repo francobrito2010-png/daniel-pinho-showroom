@@ -60,7 +60,7 @@ O que faz:
    `curl -L -o tools/.models/birefnet.onnx https://huggingface.co/onnx-community/BiRefNet-ONNX/resolve/main/onnx/model.onnx`
 3. **Limpeza**: fica só a mancha principal (o carro). Os restos da fachada e os reflexos soltos saem.
 4. **Nivelar (opcional, desligado)**: `--nivel` endireita o carro pelas rodas, mas deforma-o. Por isso o padrão é 0, o ângulo original da foto.
-5. **Exporta** um WebP transparente de até 1800 px para `cars/`, com o nome do campo `imagem`.
+5. **Exporta** um WebP transparente para `cars/`, com o nome do campo `imagem`: imagem principal a 1600 px (qualidade 88) e ângulos da rotação a 1400 px (qualidade 84). Se uma imagem passar de 200 KB, a qualidade baixa sozinha (mínimo 78).
 6. Gera `tools/.work/folha.png` com todos os recortes, para rever de uma vez.
 
 Para um carro novo, primeiro acrescentar em `cars.js`: `"showroom": 13, "imagem": "cars/nome.webp", "potencia_cv": …, "caixa": "Automática", "cor_nome": "…", "interior": "…"`.
@@ -98,6 +98,24 @@ npm run girar -- 1722938    # só um carro
 - A ferramenta recorta os 3 ângulos, põe todos à mesma altura (o carro não "cresce" ao rodar) e grava `cars/<nome>/0.webp, 1.webp, 2.webp`. Também atualiza `frames` em `cars.js`, em vaivém 0 → 1 → 2 → 1.
 - Agora têm rotação 10 dos 12 carros. O Porsche 911 2.4 S e o 992 Carrera 4 GTS só têm uma foto exterior no anúncio.
 - Para um 360° completo é preciso fotografar o carro à volta (24–36 fotos) ou usar uma app como Spyne ou Glo3D. O showroom já aceita qualquer número de `frames`.
+
+## Verificação automática
+
+```bash
+cd tools
+npm run probar
+```
+
+Abre o showroom no motor Chromium (o Edge do Windows) a 390, 768 e 1440 px e confirma:
+- zero erros de consola e sem scroll horizontal;
+- os botões principais não ficam tapados pelo WhatsApp e pelo Ligar flutuantes;
+- a tecla →, o swipe com o rato e o clique numa miniatura mudam de carro;
+- "Agendar visita" leva o carro certo no WhatsApp;
+- os carros laterais não tocam no principal;
+- o botão "Rodar" percorre os ângulos e o arrastar muda de ângulo;
+- o tema fica guardado ao recarregar.
+
+As capturas ficam em `tools/.work/probas/`, incluindo duas a meio da transição (200 e 450 ms). Correr depois de cada mudança visual.
 
 ## Publicar no GitHub Pages
 

@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#ffffff">
 <script>try{var t=localStorage.getItem('dp-tema');if(t!=='dark')document.documentElement.dataset.theme='light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 <title>Daniel Pinho Automóveis · Showroom</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%2319644D%27/%3E%3Ctext x=%2732%27 y=%2742%27 font-family=%27Arial,sans-serif%27 font-size=%2726%27 font-weight=%27600%27 fill=%27%23ffffff%27 text-anchor=%27middle%27 letter-spacing=%271%27%3EDP%3C/text%3E%3C/svg%3E">
 <meta name="description" content="Stand de automóveis premium em Lisboa. Showroom virtual com o stock real: deslize para ver cada viatura.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -308,6 +309,7 @@ img{display:block;max-width:100%}
    CTA
    ========================================================= */
 .ctas{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+@media (max-width:699px){.ctas{padding-right:66px}}   /* no telemóvel, os botões não ficam por baixo do WhatsApp/Ligar flutuantes */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:10px;
   min-height:52px;padding:0 28px;border-radius:var(--radius-pill);font-weight:500;font-size:15px;

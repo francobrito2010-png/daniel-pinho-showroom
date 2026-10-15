@@ -10,9 +10,8 @@
 // Os carros com rotação (campo "frames") são feitos por girar.mjs.
 import path from 'node:path';
 import sharp from 'sharp';
-import {ROOT, WORK, TRANSP, die, lerStock, baixar, original, recortar, webp, folha} from './lib.mjs';
+import {ROOT, WORK, TRANSP, die, lerStock, baixar, original, recortar, gravar, folha, PRINCIPAL} from './lib.mjs';
 
-const MAX_W = 1800;             // largura máxima do WebP final
 
 // ---------- argumentos ----------
 const args = process.argv.slice(2);
@@ -80,7 +79,8 @@ for (const car of alvo) {
   const {k, png: final} = await nivelar(nivel);
   const meta = await sharp(final).metadata();
   const out = path.join(ROOT, 'cars', nome);
-  const res = await webp(sharp(final).resize({width: Math.min(MAX_W, meta.width), kernel: 'lanczos3'})).toFile(out);
+  const g = await gravar(sharp(final).resize({width: Math.min(PRINCIPAL.largura, meta.width), kernel: 'lanczos3'}), out, PRINCIPAL.q);
+  const res = {...(await sharp(out).metadata()), size: g.size};
   feitos.push(out);
   console.log(`✔ ${car.marca} ${car.modelo} → cars/${nome}  ${res.width}×${res.height}  ${Math.round(res.size / 1024)} KB${k ? `  inclinação ${(Math.atan(k) * 180 / Math.PI).toFixed(1)}°` : ''}  (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 }

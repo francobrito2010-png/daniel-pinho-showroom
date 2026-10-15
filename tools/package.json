@@ -6,10 +6,14 @@
   "scripts": {
     "recortar": "node recortar.mjs",
     "girar": "node girar.mjs",
-    "rodas": "node rodas.mjs"
+    "rodas": "node rodas.mjs",
+    "probar": "node probar.mjs"
   },
   "dependencies": {
     "onnxruntime-node": "^1.17.3",
     "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.2"
   }
 }

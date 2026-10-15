@@ -103,7 +103,17 @@ export async function recortar(src){
 }
 
 export const TRANSP = {r: 0, g: 0, b: 0, alpha: 0};
-export const webp = img => img.webp({quality: 90, alphaQuality: 100, smartSubsample: true, effort: 6});
+// Pesos (prompt §9.7): imagem principal 1600 px q88, ângulos da rotação 1400 px q84 — objetivo < 200 KB
+export const PRINCIPAL = {largura: 1600, q: 88}, ANGULO = {largura: 1400, q: 84};
+export const webp = (img, q = 88) => img.webp({quality: q, alphaQuality: 90, smartSubsample: true, effort: 6});
+// Grava em WebP; se passar de 200 KB baixa a qualidade de 4 em 4 (no mínimo 78).
+export async function gravar(img, file, q){
+  const buf = await img.png().toBuffer();
+  for (let qq = q; ; qq -= 4) {
+    const out = await webp(sharp(buf), qq).toBuffer();
+    if (out.length <= 200 * 1024 || qq - 4 < 78) { fs.writeFileSync(file, out); return {size: out.length, q: qq}; }
+  }
+}
 
 // ---------- folha de revisão (fundo branco, como o tema principal) ----------
 export async function folha(files, out, cols = 3){

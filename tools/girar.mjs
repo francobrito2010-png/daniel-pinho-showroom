@@ -10,9 +10,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
-import {ROOT, WORK, CDN, TRANSP, die, lerStock, gravarStock, baixar, recortar, webp, folha} from './lib.mjs';
+import {ROOT, WORK, CDN, TRANSP, die, lerStock, gravarStock, baixar, recortar, gravar, folha, PRINCIPAL, ANGULO} from './lib.mjs';
 
-const MAX_W = 1800;
 
 // Inclinação (graus) da vista de frente: a reta entre o ponto mais baixo de cada pneu
 // (o mais baixo no terço esquerdo e no terço direito do carro). Positivo = lado direito mais baixo.
@@ -63,7 +62,6 @@ for (const id of alvo) {
     return {png: await sharp(c.png).resize(w, H, {kernel: 'lanczos3'}).png().toBuffer(), w};
   }));
   const W = Math.max(...iguais.map(c => c.w));
-  const escala = Math.min(1, MAX_W / W);
 
   // 3. grava cars/<slug>/<n>.webp (apaga a rotação antiga)
   const dir = path.join(ROOT, 'cars', slug);
@@ -73,18 +71,19 @@ for (const id of alvo) {
   for (const [k, c] of iguais.entries()) {
     const tela = sharp({create: {width: W, height: H, channels: 4, background: TRANSP}})
       .composite([{input: c.png, left: Math.round((W - c.w) / 2), top: 0}]).png();
-    const buf = await sharp(await tela.toBuffer()).resize(Math.round(W * escala), Math.round(H * escala), {kernel: 'lanczos3'}).png().toBuffer();
+    const full = await tela.toBuffer();
+    const tam = l => { const e = Math.min(1, l / W); return [Math.round(W * e), Math.round(H * e)]; };
     const f = path.join(dir, `${k}.webp`);
-    await webp(sharp(buf)).toFile(f);
+    await gravar(sharp(full).resize(...tam(ANGULO.largura), {kernel: 'lanczos3'}), f, ANGULO.q);
     files.push(f);
-    if (k === 0) await webp(sharp(buf)).toFile(path.join(ROOT, 'cars', slug + '.webp'));
+    if (k === 0) await gravar(sharp(full).resize(...tam(PRINCIPAL.largura), {kernel: 'lanczos3'}), path.join(ROOT, 'cars', slug + '.webp'), PRINCIPAL.q);
   }
   feitos.push(...files);
 
   // 4. cars.js: vaivém 0 → 1 → 2 → 1
   const seq = [...files.keys(), ...[...files.keys()].slice(1, -1).reverse()];
   car.frames = seq.map(k => `cars/${slug}/${k}.webp`);
-  console.log(`✔ ${car.marca} ${car.modelo}: ${files.length} ângulos → cars/${slug}/  ${Math.round(W * escala)}×${Math.round(H * escala)}  (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
+  console.log(`✔ ${car.marca} ${car.modelo}: ${files.length} ângulos → cars/${slug}/  ${Math.min(W, ANGULO.largura)} px  (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 }
 gravarStock(stock);
 console.log('cars.js atualizado');
