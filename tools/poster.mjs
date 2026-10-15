@@ -9,7 +9,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
-import {ROOT, WORK, lerStock, gravarStock, die, folha} from './lib.mjs';
+import {ROOT, WORK, TRANSP, lerStock, gravarStock, die, folha, recortar} from './lib.mjs';
 
 const dados = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'poster-dados.json'), 'utf8'));
 const ids = process.argv.slice(2).filter(a => !a.startsWith('--'));
@@ -19,9 +19,10 @@ fs.mkdirSync(OUT, {recursive: true});
 
 // ---------- efeito lápiz (color dodge + um pouco de contorno) ----------
 async function esboco(src, out, recorte = null){
-  let img = sharp(path.join(ROOT, src)).ensureAlpha();
+  const abs = path.isAbsolute(src) ? src : path.join(ROOT, src);
+  let img = sharp(abs).ensureAlpha();
   if (recorte) {
-    const m = await sharp(path.join(ROOT, src)).metadata();
+    const m = await sharp(abs).metadata();
     const w = Math.round(m.width * recorte[1]), left = Math.round(m.width * recorte[0]);
     img = sharp(await img.extract({left, top: 0, width: w, height: m.height}).png().toBuffer());
   }
@@ -58,6 +59,28 @@ async function esboco(src, out, recorte = null){
   return path.join(ROOT, out);
 }
 
+// ---------- foto de referência do Wikimedia Commons: descarrega, recorta o carro (BiRefNet) ----------
+const UA = {'User-Agent': 'DanielPinhoShowroom/1.0 (github francobrito2010-png)'};
+const fetchR = async (url, opt, n = 4) => {           // a ligação ao Commons às vezes falha: tenta outra vez
+  for (let k = 1; ; k++) { try { const r = await fetch(url, opt); if (r.ok) return r; throw new Error('HTTP ' + r.status); }
+    catch (e) { if (k >= n) throw e; await new Promise(r => setTimeout(r, 1500 * k)); } }
+};
+async function referencia(titulo){
+  const q = new URLSearchParams({action: 'query', format: 'json', prop: 'imageinfo', iiprop: 'url|extmetadata', iiurlwidth: 2000, titles: titulo});
+  const p = Object.values((await (await fetchR('https://commons.wikimedia.org/w/api.php?' + q, {headers: UA})).json()).query.pages)[0];
+  const ii = p.imageinfo[0], m = ii.extmetadata || {};
+  const nome = titulo.replace(/^File:/, '').replace(/[^\w.-]+/g, '_').replace(/\.\w+$/, '');
+  const foto = path.join(WORK, 'ref-' + nome + '.jpg');
+  if (!fs.existsSync(foto)) fs.writeFileSync(foto, Buffer.from(await (await fetchR(ii.thumburl, {headers: UA})).arrayBuffer()));
+  const corte = path.join(WORK, 'ref-' + nome + '-carro.png');
+  if (!fs.existsSync(corte)) {
+    const {rgba, w, h} = await recortar(foto);
+    await sharp(rgba, {raw: {width: w, height: h, channels: 4}}).trim({background: TRANSP, threshold: 1}).png().toFile(corte);
+  }
+  const autor = (m.Artist?.value || '').replace(/<[^>]+>/g, '').trim();
+  return {corte, credito: {autor, licenca: m.LicenseShortName?.value || '', url: ii.descriptionurl}};
+}
+
 const stock = lerStock();
 const feitos = [];
 for (const id of alvo) {
@@ -67,8 +90,14 @@ for (const id of alvo) {
   const slug = path.basename(car.imagem, '.webp');
   const fr = [...new Set(car.frames || [])];
   // esboços: com rotação → frente (1) e 3/4 do outro lado (2); sem rotação → metades da foto principal
-  const [srcL, cL] = fr.length >= 3 ? [fr[1], null] : [car.imagem, [0, .62]];
-  const [srcR, cR] = fr.length >= 3 ? [fr[2], null] : [car.imagem, [.38, .62]];
+  // com fotos de referência (_ref): lado e traseira do mesmo modelo; sem elas, ângulos do próprio carro
+  const ref = dados._ref?.[id], creditos = [];
+  let [srcL, cL] = fr.length >= 3 ? [fr[1], null] : [car.imagem, [0, .62]];
+  let [srcR, cR] = fr.length >= 3 ? [fr[2], null] : [car.imagem, [.38, .62]];
+  if (ref) {
+    const a = await referencia(ref.l), b = await referencia(ref.r);
+    [srcL, cL, srcR, cR] = [a.corte, null, b.corte, null]; creditos.push(a.credito, b.credito);
+  }
   const esbocoL = `cars/esbocos/${slug}-l.webp`, esbocoR = `cars/esbocos/${slug}-r.webp`;
   feitos.push(await esboco(srcL, esbocoL, cL), await esboco(srcR, esbocoR, cR));
   car.poster = {
@@ -84,6 +113,7 @@ for (const id of alvo) {
     ],
     rodape: `${marca.rodape || car.marca}<br>desde ${marca.desde}`,
     esbocoL, esbocoR,
+    ...(creditos.length ? {creditos} : {}),
   };
   console.log(`✔ ${car.marca} ${car.modelo}: esboços + ficha`);
 }

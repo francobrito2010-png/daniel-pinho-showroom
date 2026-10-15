@@ -162,7 +162,11 @@ img{display:block;max-width:100%}
 .p-dot[aria-current="true"]{background:var(--c);transform:scale(1.35)}
 
 .p-logo{position:relative;z-index:2;height:clamp(28px,3.5vw,52px);display:flex;justify-content:center;align-items:center}
-.p-logo span{display:block;max-width:calc((var(--br) - var(--bl)) * .86);font-family:'Michroma',sans-serif;font-size:clamp(9px,1.4vw,18px);letter-spacing:.16em;line-height:1.5;text-transform:uppercase;color:#fff}
+/* na banda, a assinatura do stand (logótipo em moldura, a branco): a marca do carro já está no nome gigante */
+.p-stand{display:inline-flex;flex-direction:column;align-items:flex-end;line-height:1;text-transform:uppercase;color:#fff;padding:6px 10px 5px;border:1.5px solid rgba(255,255,255,.85);border-radius:5px}
+.p-stand b{font-weight:500;font-size:clamp(10px,1.1vw,14px);letter-spacing:.2em}
+.p-stand span{font-size:clamp(6px,.6vw,7.5px);font-weight:500;letter-spacing:.42em;margin-top:3px;margin-right:-.42em;opacity:.85}
+.p-bar .p-num{font-variant-numeric:tabular-nums}
 
 .p-title{position:relative;z-index:3;margin-top:clamp(18px,3.2vw,56px);font-family:'Michroma',sans-serif;font-weight:400;
   font-size:clamp(34px,10vw,160px);line-height:1;letter-spacing:.01em;white-space:nowrap;color:var(--pink)}
@@ -228,6 +232,8 @@ img{display:block;max-width:100%}
 .p-btn--line{border:1px solid rgba(255,255,255,.7);color:#fff}
 .p-btn--line:hover{background:rgba(255,255,255,.12)}
 .p-note{margin-top:22px;font-size:11px;opacity:.65;letter-spacing:.04em}
+.p-cred{margin-top:6px;font-size:10px;opacity:.55;line-height:1.6}
+.p-cred a{text-decoration:underline;text-underline-offset:2px}
 
 .p-fx-in{animation:pUp .6s var(--ease-out) both;animation-delay:calc(var(--i,0) * 60ms)}
 @keyframes pUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -535,12 +541,12 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
     <div class="p-sketch p-sketch--r" aria-hidden="true"><img id="skR" alt=""></div>
 
     <div class="p-bar">
-      <small id="pBrand"></small>
+      <small class="p-num" id="pBrand"></small>
       <nav class="p-dots" id="pDots" aria-label="Escolher carro"></nav>
       <small id="pCity"></small>
     </div>
 
-    <div class="p-logo p-fx" style="--i:0" id="pLogo"></div>
+    <div class="p-logo p-fx" style="--i:0" aria-hidden="true"><span class="p-stand"><b>Daniel Pinho</b><span>Automóveis</span></span></div>
     <h1 class="p-title" id="pTitle"></h1>
     <p class="p-model p-fx" style="--i:1" id="pModel"></p>
     <p class="p-tag p-fx" style="--i:2" id="pTag"></p>
@@ -576,6 +582,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
         <a class="p-btn p-btn--line" id="ctaAll" href="#stock">Ver todo o stock</a>
       </div>
       <p class="p-note">* Velocidade máxima e 0-100 km/h: dados de fábrica do modelo.</p>
+      <p class="p-note p-cred" id="pCred"></p>
     </div>
   </section>
 </main>
@@ -1008,8 +1015,8 @@ function ajustarTitulo(){
 function preencher(car){
   const p = posterDe(car);
   pst.style.setProperty('--c', p.cor); pst.style.setProperty('--c2', p.cor2 || p.cor);
-  $('pBrand').textContent = car.marca; $('pCity').textContent = p.cidade || '';
-  $('pLogo').innerHTML = `<span>${esc(car.marca)}</span>`;
+  $('pBrand').textContent = String(cars.indexOf(car) + 1).padStart(2, '0') + ' / ' + String(cars.length).padStart(2, '0');
+  $('pCity').textContent = p.cidade || '';
   $('pModel').innerHTML = `<span class="w">${esc(p.modelo)}</span>` + (p.cursiva ? `<span class="k it">${esc(p.cursiva)}</span>` : '');
   $('pTag').innerHTML = (p.lema || []).map(esc).join('<br>');
   $('pStats').style.gridTemplateColumns = `repeat(${Math.max(1, p.stats.length)},1fr)`;
@@ -1021,6 +1028,7 @@ function preencher(car){
   $('pPreco').textContent = fmtPrice(car.preco);
   $('pMeta').textContent = [car.ano, has(car.km) ? fmtKm(car.km) : null, car.combustivel].filter(has).join(' · ');
   $('pFoot').innerHTML = p.rodape || '';
+  $('pCred').innerHTML = (p.creditos || []).length ? 'Esboços a partir de fotografias do Wikimedia Commons: ' + p.creditos.map(c => `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.autor || 'autor')}</a> (${esc(c.licenca)})`).join(' · ') : '';
   $('ctaVisit').href = waLink(infoMsg(car));
   $('ctaVisit').setAttribute('aria-label', `Agendar visita para ver o ${fullName(car)} por WhatsApp`);
   $('pCar').alt = fullName(car);

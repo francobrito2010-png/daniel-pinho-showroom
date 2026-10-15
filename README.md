@@ -105,7 +105,8 @@ A portada é um **poster de coleção por carro**, baseado na página "Coleção
 - uma banda vertical com a **cor da marca**;
 - o **nome da marca gigante** (fonte Michroma), que se ajusta à largura;
 - o modelo com a parte em cursiva e um lema em 3 linhas;
-- **esboços a lápiz** do próprio carro de cada lado;
+- **esboços a lápiz** do mesmo modelo de cada lado (lado e traseira), a partir de fotos do **Wikimedia Commons** com licença livre (CC BY / CC BY-SA / CC0): não são o carro do stand. Os créditos dos autores aparecem no fim de cada poster, como pede a licença. As fotos escolhidas estão em `tools/poster-dados.json` → `_ref`; sem referência, usa ângulos do próprio carro;
+- na banda, o logótipo do **Daniel Pinho** (a marca do carro só aparece uma vez, no nome gigante) e, em cima à esquerda, o número do carro ("03 / 12");
 - o carro recortado;
 - um bloco em forma de "estrada" com 3 cifras, eslogan, bandeira, 4 ícones, **preço do stand**, "desde 19xx" e os botões "Agendar visita" (WhatsApp) e "Ver todo o stock".
 
