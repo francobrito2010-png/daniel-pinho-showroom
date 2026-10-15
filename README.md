@@ -99,6 +99,28 @@ npm run girar -- 1722938    # só um carro
 - Agora têm rotação 10 dos 12 carros. O Porsche 911 2.4 S e o 992 Carrera 4 GTS só têm uma foto exterior no anúncio.
 - Para um 360° completo é preciso fotografar o carro à volta (24–36 fotos) ou usar uma app como Spyne ou Glo3D. O showroom já aceita qualquer número de `frames`.
 
+## Showroom em estilo poster
+
+A portada é um **poster de coleção por carro**, baseado na página "Coleção" do repositório `andrew` (`/poster/`). Cada carro tem:
+- uma banda vertical com a **cor da marca**;
+- o **nome da marca gigante** (fonte Michroma), que se ajusta à largura;
+- o modelo com a parte em cursiva e um lema em 3 linhas;
+- **esboços a lápiz** do próprio carro de cada lado;
+- o carro recortado;
+- um bloco em forma de "estrada" com 3 cifras, eslogan, bandeira, 4 ícones, **preço do stand**, "desde 19xx" e os botões "Agendar visita" (WhatsApp) e "Ver todo o stock".
+
+Ao mudar de carro (setas, pontos, teclado ou swipe), as letras saem e entram uma a uma, a cor funde-se e o carro sai com rastos e entra a derrapar. O botão **"Rodar"** percorre os 3 ângulos do carro.
+
+```bash
+cd tools
+npm run poster              # gera os esboços (cars/esbocos/) e grava "poster" em cars.js
+npm run poster -- 1722938   # só um carro
+```
+
+- A ficha de cada carro está em `tools/poster-dados.json`: modelo, cursiva, lema, eslogan, ícones, velocidade máxima e 0-100. As cores, a cidade, a bandeira e o "desde" de cada marca estão em `_marcas`.
+- **⚠️ Velocidade máxima e 0-100 km/h são dados de fábrica do modelo, a confirmar pelo stand.** A potência vem do anúncio. Na página aparecem com `*` e uma nota.
+- Um carro novo precisa de uma entrada em `poster-dados.json` (e da marca em `_marcas`, se for nova). Sem ficha, o carro aparece com uma ficha simples a verde.
+
 ## Verificação automática
 
 ```bash
@@ -109,10 +131,11 @@ npm run probar
 Abre o showroom no motor Chromium (o Edge do Windows) a 390, 768 e 1440 px e confirma:
 - zero erros de consola e sem scroll horizontal;
 - os botões principais não ficam tapados pelo WhatsApp e pelo Ligar flutuantes;
-- a tecla →, o swipe com o rato e o clique numa miniatura mudam de carro;
+- a tecla →, o swipe com o rato e o clique num ponto mudam de carro;
 - "Agendar visita" leva o carro certo no WhatsApp;
-- os carros laterais não tocam no principal;
-- o botão "Rodar" percorre os ângulos e o arrastar muda de ângulo;
+
+- o nome gigante cabe na largura e o poster tem a cor da marca e o preço;
+- o botão "Rodar" percorre os ângulos;
 - o tema fica guardado ao recarregar.
 
 As capturas ficam em `tools/.work/probas/`, incluindo duas a meio da transição (200 e 450 ms). Correr depois de cada mudança visual.

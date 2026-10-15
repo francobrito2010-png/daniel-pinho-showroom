@@ -7,7 +7,8 @@
     "recortar": "node recortar.mjs",
     "girar": "node girar.mjs",
     "rodas": "node rodas.mjs",
-    "probar": "node probar.mjs"
+    "probar": "node probar.mjs",
+    "poster": "node poster.mjs"
   },
   "dependencies": {
     "onnxruntime-node": "^1.17.3",
