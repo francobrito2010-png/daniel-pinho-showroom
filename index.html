@@ -366,6 +366,102 @@ button.fab-wa{border:0;cursor:pointer}
 .fab-wa .x{display:none}
 .fab-wa[aria-expanded="true"] .ico{display:none}
 .fab-wa[aria-expanded="true"] .x{display:block}
+/* Abrir a ficha a partir do cartão */
+.vcard-open{all:unset;cursor:pointer}
+.vcard h3 .vcard-open:hover{color:var(--accent)}
+.vcard-media{cursor:pointer}
+
+/* "Que viatura procura?" (como no site: marca → modelo) */
+.search{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;margin-bottom:22px;padding:16px;border-radius:20px;background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line)}
+@media (min-width:900px){.search{grid-template-columns:1fr 1fr 1fr auto auto;padding:18px 20px}}
+.search h3{grid-column:1/-1;font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+.search label{display:flex;flex-direction:column;gap:6px;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);min-width:0}
+.search select{font:inherit;font-size:14px;letter-spacing:0;text-transform:none;color:var(--ink);background:var(--bg);border:1px solid var(--line-2);border-radius:12px;padding:11px 32px 11px 12px;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;width:100%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2381C995' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:14px}
+.search select:focus{border-color:var(--accent)}
+.search select:disabled{opacity:.5;cursor:default}
+.s-count{font-size:14px;color:var(--muted);align-self:center;white-space:nowrap}
+.s-count b{font-size:22px;font-weight:600;color:var(--accent);margin-right:4px}
+.search-clear{font-size:13px;color:var(--accent);padding:6px 2px;border-bottom:1px solid transparent;justify-self:start;align-self:center}
+.search-clear:hover{border-color:var(--accent)}
+
+/* Vendido */
+.badge--sold{background:#b3261e;border-color:#b3261e;color:#fff}
+.vcard.is-sold .cr-track img{filter:grayscale(.85) brightness(.95)}
+.vcard.is-sold .vcard-media::after{content:"Vendido";position:absolute;z-index:2;top:22px;right:-38px;transform:rotate(35deg);width:160px;text-align:center;padding:6px 0;background:#b3261e;color:#fff;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;box-shadow:0 6px 16px -6px rgba(0,0,0,.5);pointer-events:none}
+
+/* Últimas entradas */
+.news-strip{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:4px 16px 8px}
+.news-strip::-webkit-scrollbar{display:none}
+@media (min-width:700px){.news-strip{margin:0 -32px;padding:4px 32px 8px}}
+.ncard{flex:0 0 min(78vw,290px);scroll-snap-align:start;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--line);text-align:left;transition:transform .3s var(--ease-out),border-color .3s}
+.ncard:hover{transform:translateY(-3px);border-color:rgba(var(--accent-rgb),.45)}
+.ncard .vcard-media{aspect-ratio:16/10}
+.ncard-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:3px}
+.ncard-body small{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.ncard-body b{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ncard-body span{font-size:13px;color:var(--muted)}
+
+/* Ficha da viatura (janela por cima da página, com endereço próprio #viatura-…) */
+.ficha{width:min(1120px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 24px);margin:auto;padding:0;border:0;border-radius:24px;background:var(--bg);color:var(--ink);overflow:hidden;box-shadow:0 40px 120px -20px rgba(0,0,0,.6)}
+.ficha::backdrop{background:rgba(6,8,7,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ficha[open]{animation:fichaIn .45s var(--ease-out)}
+@keyframes fichaIn{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
+.ficha-scroll{max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
+.ficha-close{position:absolute;top:12px;right:12px;z-index:6;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.92);color:#111312;box-shadow:0 6px 18px -8px rgba(0,0,0,.5)}
+.ficha-close svg{width:18px;height:18px}
+.ficha-grid{display:grid}
+@media (min-width:960px){.ficha-grid{grid-template-columns:1.35fr 1fr}}
+.ficha-gal{position:relative;background:#0b0d0c;min-width:0}
+.ficha-main{position:relative;aspect-ratio:3/2}
+.ficha-main .cr-track{cursor:grab}
+.ficha-thumbs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px}
+.ficha-thumbs::-webkit-scrollbar{display:none}
+.ficha-thumbs button{flex:0 0 76px;aspect-ratio:3/2;border-radius:8px;overflow:hidden;opacity:.5;border:1px solid transparent;transition:opacity .2s,border-color .2s}
+.ficha-thumbs button[aria-current="true"]{opacity:1;border-color:var(--accent)}
+.ficha-thumbs img{width:100%;height:100%;object-fit:cover}
+.ficha-all{display:block;padding:0 12px 12px;font-size:12px;color:#c3cbc6}
+.ficha-all a{text-decoration:underline;text-underline-offset:2px}
+.ficha-info{padding:26px 22px 28px;display:flex;flex-direction:column;gap:14px;min-width:0}
+@media (min-width:960px){.ficha-info{padding:34px 32px 32px}}
+.ficha-info .vcard-brand{margin-right:50px}
+.ficha-info h2{font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.ficha-price{font-size:30px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.ficha-tags{display:flex;flex-wrap:wrap;gap:6px}
+.ficha-tags .badge{background:transparent;color:var(--accent);border-color:rgba(var(--accent-rgb),.5)}
+.ficha-tags .badge--sold{background:#b3261e;color:#fff;border-color:#b3261e}
+.ficha-btns{display:flex;flex-wrap:wrap;gap:8px}
+.ficha-btns .btn{flex:1 1 130px;min-height:46px;font-size:14px;padding:0 16px}
+.ficha-specs{list-style:none;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+.ficha-specs li{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.ficha-specs li:nth-child(odd){padding-right:12px}
+.ficha-specs li[hidden]{display:none}
+.ficha-specs span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ficha-specs b{font-weight:500}
+.ficha-obs{font-size:14px;line-height:1.7;color:var(--ink-2);white-space:pre-line;padding:14px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.ficha-obs summary{cursor:pointer;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500;white-space:normal}
+.ficha-like{padding:6px 22px 26px}
+@media (min-width:960px){.ficha-like{padding:6px 32px 30px}}
+.ficha-like h3{font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.ficha-like .news-strip{margin:0;padding:4px 0 8px}
+.ficha-like .ncard{flex-basis:min(70vw,230px)}
+body.ficha-aberta{overflow:hidden}
+
+/* Eventos */
+.events{list-style:none;display:grid;grid-template-columns:1fr;border-top:1px solid var(--line)}
+@media (min-width:700px){.events{grid-template-columns:1fr 1fr;column-gap:40px}}
+.events li{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.events b{font-weight:500;font-size:15px}
+.events span{font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* Mapa e horário */
+.mapa{margin-top:22px;border-radius:18px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/10;background:var(--media-top)}
+.mapa iframe{width:100%;height:100%;border:0;filter:grayscale(.35) contrast(1.05)}
+:root:not([data-theme="light"]) .mapa iframe{filter:grayscale(.6) invert(.9) hue-rotate(180deg)}
+.aberto{display:inline-flex;align-items:center;gap:6px;margin-left:8px;font-size:12px;font-weight:600;color:#1f9d55}
+.aberto::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.aberto.fechado{color:#b3261e}
+
 .badges{position:absolute;top:12px;left:12px;right:12px;z-index:2;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
 .badge{padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;background:rgba(10,12,11,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(var(--accent-rgb),.55);color:#dff3e6}
 .badge--brand{background:var(--brand);border-color:var(--brand);color:#fff}
@@ -534,8 +630,9 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
   </a>
   <nav class="nav" aria-label="Menu principal">
     <a href="#showroom">Showroom</a>
-    <a href="#stock">Stock</a>
+    <a href="#stock">Viaturas</a>
     <a href="#servicos">Serviços</a>
+    <a href="#eventos">Eventos</a>
     <a href="#stand">O stand</a>
     <a href="#contacto">Contacto</a>
   </nav>
@@ -559,8 +656,9 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
 </header>
 <nav class="mnav" id="mnav" aria-label="Menu móvel">
   <a href="#showroom">Showroom</a>
-  <a href="#stock">Stock</a>
+  <a href="#stock">Viaturas</a>
   <a href="#servicos">Serviços</a>
+  <a href="#eventos">Eventos</a>
   <a href="#stand">O stand</a>
   <a href="#contacto">Contacto</a>
   <a href="#" class="tel js-tel"></a>
@@ -625,6 +723,19 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
 <div class="divider"></div>
 
 <!-- =========================================================
+     ÚLTIMAS ENTRADAS — OS MAIS RECENTES (como no site)
+     ========================================================= -->
+<section class="section" id="entradas" aria-labelledby="entTitle" style="padding-bottom:40px">
+  <div class="sec-head reveal">
+    <div><p class="kicker">Últimas entradas</p><h2 class="h2" id="entTitle">Os mais recentes</h2></div>
+    <p class="lead">As viaturas que entraram mais recentemente no stand. Toque para ver a ficha completa.</p>
+  </div>
+  <div class="news-strip reveal" id="newsStrip"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =========================================================
      STOCK
      ========================================================= -->
 <section class="section" id="stock" aria-labelledby="stockTitle">
@@ -633,49 +744,27 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
       <p class="kicker">Stock</p>
       <h2 class="h2" id="stockTitle">Viaturas disponíveis</h2>
     </div>
-    <p class="lead">Desportivos, clássicos e SUV premium, prontos a ver no nosso stand em Lisboa. As viaturas com o selo 3D também estão no showroom.</p>
+    <p class="lead">Mais viaturas do nosso stand em Lisboa, além das do showroom. Toque numa viatura para ver a galeria e a ficha completa.</p>
   </div>
-  <div class="stock-tools reveal">
-    <div class="chips" id="chips" role="group" aria-label="Filtrar por marca"></div>
-    <label class="sort">Ordenar
-      <select id="sortSel">
-        <option value="destaques">Destaques</option>
-        <option value="recentes">Últimas entradas</option>
-        <option value="preco-asc">Preço mais baixo</option>
-        <option value="preco-desc">Preço mais alto</option>
-        <option value="ano-desc">Ano: mais novos</option>
-        <option value="ano-asc">Ano: mais antigos</option>
-        <option value="marca">Marca (A–Z)</option>
-      </select>
-    </label>
-  </div>
-  <p class="stock-count" id="stockCount" aria-live="polite"></p>
+  <form class="search reveal" id="search" aria-label="Que viatura procura?" onsubmit="return false">
+    <h3>Que viatura procura?</h3>
+    <label>Marca<select id="sMarca"></select></label>
+    <label>Modelo<select id="sModelo" disabled><option value="">Selecionar</option></select></label>
+    <label>Ordenar por<select id="sortSel">
+      <option value="destaques">Destaques</option>
+      <option value="marca">Marca: A a Z</option>
+      <option value="marca-za">Marca: Z a A</option>
+      <option value="preco-asc">Preço mais baixo</option>
+      <option value="preco-desc">Preço mais alto</option>
+      <option value="ano-desc">Mais novos (por ano)</option>
+      <option value="ano-asc">Mais antigos (por ano)</option>
+      <option value="recentes">Mais recentes</option>
+    </select></label>
+    <span class="s-count" id="sCount" aria-live="polite"></span>
+    <button class="search-clear" id="sLimpar" type="button">Limpar</button>
+  </form>
   <div class="grid" id="stockGrid"></div>
   <div class="more-wrap" id="moreWrap"><button class="btn btn-ghost" id="moreBtn" type="button">Ver mais viaturas</button></div>
-</section>
-
-<div class="divider"></div>
-
-<!-- =========================================================
-     DESTAQUE (viatura com "destaque": true em cars.js)
-     ========================================================= -->
-<section class="section" id="destaque" aria-labelledby="featTitle">
-  <div class="feature">
-    <div class="reveal">
-      <figure class="feature-stage"><img id="featImg" alt=""></figure>
-      <div class="feature-thumbs" id="featThumbs" aria-label="Fotografias da viatura"></div>
-    </div>
-    <div class="feature-info reveal">
-      <p class="kicker">Em destaque</p>
-      <h2 class="h2" id="featTitle"></h2>
-      <p class="feature-price" id="featPrice"></p>
-      <ul class="spec-table" id="featSpecs"></ul>
-      <div class="btn-row">
-        <a class="btn btn-primary" id="featWa" href="#" target="_blank" rel="noopener">Pedir informações</a>
-        <button class="btn btn-ghost" id="featShow" type="button">Ver no showroom 3D</button>
-      </div>
-    </div>
-  </div>
 </section>
 
 <div class="divider"></div>
@@ -743,6 +832,19 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
 <div class="divider"></div>
 
 <!-- =========================================================
+     EVENTOS (as "Notícias" do site)
+     ========================================================= -->
+<section class="section" id="eventos" aria-labelledby="evTitle">
+  <div class="sec-head reveal">
+    <div><p class="kicker">Eventos</p><h2 class="h2" id="evTitle">Onde estivemos</h2></div>
+    <p class="lead">Salões, encontros e passeios de clássicos e desportivos em que o stand participou.</p>
+  </div>
+  <ul class="events reveal" id="events"></ul>
+</section>
+
+<div class="divider"></div>
+
+<!-- =========================================================
      CONTACTO
      ========================================================= -->
 <section class="section" id="contacto" aria-labelledby="contTitle">
@@ -756,8 +858,11 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg><div><small>Telemóveis</small><span id="moveis"></span><em>Chamada para a rede móvel nacional</em></div></li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg><div><small>Email</small><a id="email" href="#"></a></div></li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div><small>Morada</small><a id="morada" href="#" target="_blank" rel="noopener"></a></div></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div><small>Horário</small><span id="horario"></span></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div><small>Horário <span class="aberto" id="abertoAgora"></span></small><span id="horario"></span></div></li>
       </ul>
+      <div class="mapa"><iframe title="Mapa: Rua Capitão Ramires 14, Lisboa" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q=Rua+Capit%C3%A3o+Ramires+14,+1000-085+Lisboa&output=embed"></iframe></div>
+      <a class="btn btn-ghost" id="dirs" href="https://maps.app.goo.gl/T4DMG3MT79e88D1v6" target="_blank" rel="noopener" style="margin-top:12px">Obter direções</a>
     </div>
     <form class="form reveal" id="contactForm" novalidate>
       <div class="field"><label for="fNome">Nome</label><input id="fNome" name="nome" autocomplete="name" required></div>
@@ -772,7 +877,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
 
 <footer class="site-footer">
   <a class="logo" href="#showroom" aria-label="Daniel Pinho Automóveis — voltar ao início"><b>Daniel Pinho</b><span>Automóveis</span></a>
-  <nav aria-label="Rodapé"><a href="#stock">Stock</a><a href="#servicos">Serviços</a><a href="#stand">O stand</a><a href="#contacto">Contacto</a></nav>
+  <nav aria-label="Rodapé"><a href="#stock">Viaturas</a><a href="#servicos">Serviços</a><a href="#stand">O stand</a><a href="#eventos">Eventos</a><a href="#contacto">Contacto</a></nav>
   <div class="footer-social">
     <a href="#" class="js-fb" target="_blank" rel="noopener">Facebook</a>
     <a href="#" class="js-ig" target="_blank" rel="noopener">Instagram</a>
@@ -799,6 +904,11 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
   </a>
 </div>
+
+<dialog class="ficha" id="ficha" aria-labelledby="fTitle">
+  <button class="ficha-close" id="fichaClose" type="button" aria-label="Fechar e voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="ficha-scroll" id="fichaScroll"></div>
+</dialog>
 
 <script src="cars.js"></script>
 <script>
@@ -886,7 +996,7 @@ const ICON_3D = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 const infoMsg = car => `Olá! Tenho interesse no ${nameYear(car)}${has(car.preco) ? ' por ' + fmtPrice(car.preco) : ''}. Posso agendar uma visita?`;
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[ch]));
 /* Grelha de stock: filtro por marca, ordenação e "ver mais" */
-const PAGE = 12;
+const PAGE = 18;
 const SORTS = {
   'destaques': (a, b) => (a.showroom || 99) - (b.showroom || 99) || !!a.sem_fotos - !!b.sem_fotos || +b.id - +a.id,
   'recentes': (a, b) => +b.id - +a.id,
@@ -894,9 +1004,11 @@ const SORTS = {
   'preco-desc': (a, b) => (b.preco ?? -1) - (a.preco ?? -1),
   'ano-desc': (a, b) => (b.ano * 12 + (b.mes || 0)) - (a.ano * 12 + (a.mes || 0)),
   'ano-asc': (a, b) => (a.ano * 12 + (a.mes || 0)) - (b.ano * 12 + (b.mes || 0)),
-  'marca': (a, b) => fullName(a).localeCompare(fullName(b), 'pt')
+  'marca': (a, b) => fullName(a).localeCompare(fullName(b), 'pt'),
+  'marca-za': (a, b) => fullName(b).localeCompare(fullName(a), 'pt')
 };
-const view = {marca: 'Todas', sort: 'destaques', shown: PAGE};
+const view = {marca: '', modelo: '', sort: 'destaques', shown: PAGE};
+const CDN_STAND = 'https://cdn.easysite.pt/pub/15144/';
 
 /* Carrossel de fotos: desliza com o dedo (scroll-snap), setas e pontos */
 const SETA = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${d < 0 ? 'M15 18l-6-6 6-6' : 'M9 6l6 6-6 6'}"/></svg>`;
@@ -935,88 +1047,175 @@ function setupWhatsApp(){
   document.addEventListener('click', e => { if (!panel.contains(e.target)) abrir(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') abrir(false); });
 }
+const fotosDe = car => (car.galeria || []).length ? car.galeria.map(f => `${CDN_STAND}${car.id}/${f}`) : (car.fotos || []);
+const pequena = url => url.replace(/-0\.(webp|jpe?g)$/, '-6.$1');
+const verFicha = id => { location.hash = 'viatura-' + id; };
+
 function stockCard(car){
   const meta = [car.ano, has(car.km) ? fmtKm(car.km) : null, car.combustivel, has(car.potencia_cv) ? fmtCv(car.potencia_cv) : null].filter(has).join(' · ');
   const badges = [
+    car.vendido ? '<span class="badge badge--sold">Vendido</span>' : '',
     car.reservado ? '<span class="badge badge--muted">Reservado</span>' : '',
-    car.showroom ? '<span class="badge badge--brand">3D</span>' : '',
     ...(car.tags || []).slice(0, 2).map(t => `<span class="badge">${esc(t)}</span>`)
   ].join('');
   const fotos = (car.fotos || []).slice(0, 3);
   const img = fotos.length ? carrossel(fotos, fullName(car))
                  : `<div class="nophoto"><span class="logo" aria-hidden="true"><b>Daniel Pinho</b><span>Automóveis</span></span><small>Fotografias em breve</small></div>`;
   const c = document.createElement('article');
-  c.className = 'vcard';
+  c.className = 'vcard' + (car.vendido ? ' is-sold' : '');
+  const preco = car.vendido ? '<span class="vcard-price soft">Vendido</span>' : `<span class="vcard-price${has(car.preco) ? '' : ' soft'}">${fmtPrice(car.preco)}</span>`;
+  const wa = car.vendido ? `Olá! Vi que o ${nameYear(car)} já foi vendido. Procuro uma viatura igual, podem ajudar?` : infoMsg(car);
   c.innerHTML = `<div class="vcard-media"><div class="badges">${badges}</div>${img}</div>
-    <div class="vcard-body"><p class="vcard-brand">${esc(car.marca)}</p><h3>${esc(car.modelo)}</h3><p class="vcard-meta">${meta}</p>
-    <div class="vcard-foot"><span class="vcard-price${has(car.preco) ? '' : ' soft'}">${fmtPrice(car.preco)}</span><div class="vcard-actions">
-    ${car.showroom ? `<button class="icon-btn" type="button" aria-label="Ver ${esc(fullName(car))} no showroom 3D">${ICON_3D}</button>` : ''}
-    <a class="icon-btn icon-btn--wa" href="${waLink(infoMsg(car))}" target="_blank" rel="noopener" aria-label="Pedir informações do ${esc(fullName(car))} por WhatsApp">${ICON_WA}</a>
+    <div class="vcard-body"><p class="vcard-brand">${esc(car.marca)}</p><h3><button class="vcard-open" type="button">${esc(car.modelo)}</button></h3><p class="vcard-meta">${meta}</p>
+    <div class="vcard-foot">${preco}<div class="vcard-actions">
+    <a class="icon-btn icon-btn--wa" href="${waLink(wa)}" target="_blank" rel="noopener" aria-label="${car.vendido ? 'Procurar uma viatura igual' : 'Pedir informações do ' + esc(fullName(car))} por WhatsApp">${ICON_WA}</a>
     </div></div></div>`;
-  const b3d = c.querySelector('.vcard-actions button');
-  if(b3d) b3d.addEventListener('click', () => showInShowroom(cars.indexOf(car)));
+  // tocar na foto ou no nome abre a ficha (as setas do carrossel não)
+  c.querySelector('.vcard-open').addEventListener('click', () => verFicha(car.id));
+  c.querySelector('.vcard-media').addEventListener('click', e => { if (!e.target.closest('.cr-nav')) verFicha(car.id); });
   ligarCarrossel(c);
   return c;
 }
+
+/* ---------- Stock (sem as viaturas do showroom): "Que viatura procura?", ordenar, ver mais ---------- */
+const modeloBase = c => c.modelo.split(' ')[0].replace(/^\./, '');
+function listaStock(){
+  return stock.filter(c => !c.showroom)
+    .filter(c => !view.marca || c.marca === view.marca)
+    .filter(c => !view.modelo || modeloBase(c) === view.modelo)
+    .sort((a, b) => !!a.vendido - !!b.vendido || SORTS[view.sort](a, b));
+}
 function renderStock(){
-  const list = stock.filter(c => view.marca === 'Todas' || c.marca === view.marca).sort(SORTS[view.sort]);
-  const grid = $('stockGrid');
-  grid.replaceChildren(...list.slice(0, view.shown).map(stockCard));
+  const list = listaStock();
+  $('stockGrid').replaceChildren(...list.slice(0, view.shown).map(stockCard));
   $('moreWrap').hidden = list.length <= view.shown;
-  $('stockCount').innerHTML = `<b>${list.length}</b> ${list.length === 1 ? 'viatura' : 'viaturas'}${view.marca === 'Todas' ? ' em stock' : ' ' + esc(view.marca)}`;
+  $('sCount').innerHTML = `<b>${list.length}</b> ${list.length === 1 ? 'viatura' : 'viaturas'}`;
 }
 function buildStock(){
-  const counts = stock.reduce((m, c) => m.set(c.marca, (m.get(c.marca) || 0) + 1), new Map());
-  const marcas = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt'));
-  [['Todas', stock.length], ...marcas].forEach(([m, n]) => {
-    const chip = document.createElement('button');
-    chip.className = 'chip'; chip.type = 'button';
-    chip.innerHTML = `${esc(m)}<small>${n}</small>`;
-    chip.setAttribute('aria-pressed', m === view.marca ? 'true' : 'false');
-    chip.addEventListener('click', () => {
-      $('chips').querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x === chip ? 'true' : 'false'));
-      view.marca = m; view.shown = PAGE; renderStock();
-    });
-    $('chips').appendChild(chip);
-  });
+  const base = stock.filter(c => !c.showroom);
+  const sMarca = $('sMarca'), sModelo = $('sModelo');
+  const marcas = [...base.reduce((m, c) => m.set(c.marca, (m.get(c.marca) || 0) + 1), new Map())].sort((a, b) => a[0].localeCompare(b[0], 'pt'));
+  sMarca.innerHTML = '<option value="">Selecionar</option>' + marcas.map(([m, n]) => `<option value="${esc(m)}">${esc(m)} (${n})</option>`).join('');
+  const preencherModelos = () => {
+    const ms = [...new Set(base.filter(c => c.marca === view.marca).map(modeloBase))].sort((a, b) => a.localeCompare(b, 'pt', {numeric: true}));
+    sModelo.innerHTML = '<option value="">Selecionar</option>' + ms.map(m => `<option>${esc(m)}</option>`).join('');
+    sModelo.disabled = !view.marca;
+  };
+  preencherModelos();
+  sMarca.addEventListener('change', () => { view.marca = sMarca.value; view.modelo = ''; view.shown = PAGE; preencherModelos(); renderStock(); });
+  sModelo.addEventListener('change', () => { view.modelo = sModelo.value; view.shown = PAGE; renderStock(); });
   $('sortSel').addEventListener('change', e => { view.sort = e.target.value; view.shown = PAGE; renderStock(); });
+  $('sLimpar').addEventListener('click', () => { view.marca = view.modelo = ''; sMarca.value = ''; preencherModelos(); renderStock(); });
   $('moreBtn').addEventListener('click', () => { view.shown += PAGE; renderStock(); });
   renderStock();
 
+  // Últimas entradas: as mais recentes (id mais alto), sem as vendidas
+  const novas = stock.filter(c => !c.showroom && !c.vendido && (c.fotos || []).length).sort((a, b) => +b.id - +a.id).slice(0, 8);
+  $('newsStrip').innerHTML = novas.map(c => `<button class="ncard" type="button" data-id="${c.id}"><div class="vcard-media"><img src="${c.fotos[0]}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></div>
+    <div class="ncard-body"><small>${esc(c.marca)}</small><b>${esc(c.modelo)}</b><span>${c.ano} · ${fmtPrice(c.preco)}</span></div></button>`).join('');
+  $('newsStrip').addEventListener('click', e => { const b = e.target.closest('.ncard'); if (b) verFicha(b.dataset.id); });
+
   // formulário: viaturas por marca
   const sel = $('fCarro');
-  [...stock].sort(SORTS.marca).forEach(car => sel.add(new Option(nameYear(car), nameYear(car))));
+  [...stock].filter(c => !c.vendido).sort(SORTS.marca).forEach(car => sel.add(new Option(nameYear(car), nameYear(car))));
 
   // números do stand
-  const oldest = Math.min(...stock.map(c => c.ano).filter(has));
-  $('stats').innerHTML = [[stock.length, 'Viaturas'], [counts.size, 'Marcas'], [oldest, 'A mais antiga']]
+  const vivos = stock.filter(c => !c.vendido);
+  const oldest = Math.min(...vivos.map(c => c.ano).filter(has));
+  $('stats').innerHTML = [[vivos.length, 'Viaturas'], [new Set(vivos.map(c => c.marca)).size, 'Marcas'], [oldest, 'A mais antiga']]
     .map(([v, l]) => `<li><b>${v}</b><span>${l}</span></li>`).join('');
 }
 
-function buildFeature(){
-  const car = stock.find(c => c.destaque) || cars[0];
-  const i = cars.indexOf(car);
-  const shots = car.fotos && car.fotos.length ? car.fotos : [car.imagem];
-  $('featTitle').textContent = fullName(car);
-  $('featPrice').textContent = has(car.preco) ? fmtPrice(car.preco) : 'Preço sob consulta';
-  const rows = [['Registo', has(car.ano) ? (car.mes ? String(car.mes).padStart(2, '0') + '/' : '') + car.ano : '—'], ['Quilómetros', fmtKm(car.km)],
-    ['Potência', has(car.potencia_cv) ? fmtCv(car.potencia_cv) : '—'], ['Combustível', car.combustivel || '—'], ['Caixa', car.caixa || '—'],
-    ['Cor', [car.cor_nome, car.interior && 'interior ' + car.interior.toLowerCase()].filter(Boolean).join(' · ') || '—']];
-  $('featSpecs').innerHTML = rows.map(([k, v]) => `<li><span>${k}</span><b>${esc(v)}</b></li>`).join('');
-  $('featWa').href = waLink(infoMsg(car));
-  if(i >= 0) $('featShow').addEventListener('click', () => showInShowroom(i));
-  else $('featShow').hidden = true;
-  const img = $('featImg'); img.alt = fullName(car); img.src = shots[0];
-  shots.slice(0, 5).forEach((s, k) => {
-    const t = document.createElement('button'); t.type = 'button';
-    t.setAttribute('aria-label', `Fotografia ${k + 1}`); t.setAttribute('aria-current', k === 0 ? 'true' : 'false');
-    t.innerHTML = `<img alt="" loading="lazy" src="${s}">`;
-    t.addEventListener('click', () => {
-      img.src = s;
-      $('featThumbs').querySelectorAll('button').forEach(x => x.setAttribute('aria-current', x === t ? 'true' : 'false'));
-    });
-    $('featThumbs').appendChild(t);
+/* ---------- Ficha da viatura: galeria grande + características (como a página de carro do site) ---------- */
+const CAMPOS = ['Registo', 'Quilómetros', 'Lugares', 'Segmento', 'Combustível', 'Potência', 'Cilindrada', 'Transmissão', 'Cor', 'Portas', 'Estado', 'Garantia', 'Tipo de Bateria', 'Cor Interior', 'Portagem', '2ª Chave'];
+function abrirFicha(car){
+  const fotos = fotosDe(car);
+  const ficha = car.ficha && car.ficha.length ? car.ficha
+    : [['Registo', has(car.ano) ? car.ano : '—'], ['Quilómetros', has(car.km) ? thousands(car.km) : '—'], ['Combustível', car.combustivel || '—']];
+  const ord = [...ficha].sort((a, b) => (CAMPOS.indexOf(a[0]) + 99) % 99 - (CAMPOS.indexOf(b[0]) + 99) % 99);
+  const parecidos = stock.filter(c => c !== car && !c.showroom && !c.vendido && (c.fotos || []).length && (c.marca === car.marca || (car.preco && c.preco && Math.abs(c.preco - car.preco) / car.preco < .3))).slice(0, 6);
+  const tags = [car.vendido && 'Vendido', car.reservado && 'Reservado', ...(car.tags || [])].filter(Boolean);
+  $('fichaScroll').innerHTML = `
+    <div class="ficha-grid">
+      <div class="ficha-gal">
+        <div class="ficha-main">${fotos.length ? carrossel(fotos, fullName(car)) : '<div class="nophoto"><small>Fotografias em breve</small></div>'}
+          ${fotos.length > 1 ? `<span class="cr-count" id="fCount">1 / ${car.total_fotos || fotos.length} Fotos</span>` : ''}</div>
+        ${fotos.length > 1 ? `<div class="ficha-thumbs" id="fThumbs">${fotos.map((f, i) => `<button type="button" aria-label="Fotografia ${i + 1}" aria-current="${i ? 'false' : 'true'}"><img src="${pequena(f)}" alt="" loading="lazy"></button>`).join('')}</div>` : ''}
+        ${car.total_fotos > fotos.length && car.url ? `<span class="ficha-all"><a href="${car.url}" target="_blank" rel="noopener">Ver as ${car.total_fotos} fotografias no anúncio</a></span>` : ''}
+      </div>
+      <div class="ficha-info">
+        <p class="vcard-brand">${esc(car.marca)}</p>
+        <h2 id="fTitle">${esc(car.modelo)}</h2>
+        <p class="ficha-price">${car.vendido ? 'Vendido' : fmtPrice(car.preco)}</p>
+        ${tags.length ? `<div class="ficha-tags">${tags.map(t => `<span class="badge${t === 'Vendido' ? ' badge--sold' : ''}">${esc(t)}</span>`).join('')}</div>` : ''}
+        <div class="ficha-btns">
+          ${car.vendido
+            ? `<a class="btn btn-primary" href="${waLink(`Olá! Vi que o ${nameYear(car)} já foi vendido. Procuro uma viatura igual, podem ajudar?`)}" target="_blank" rel="noopener">Procuro uma igual</a>`
+            : `<a class="btn btn-primary" href="tel:+351${STAND.moveis[0].replace(/\s/g, '')}">Ligar</a>
+               <a class="btn btn-ghost" href="${waLink(infoMsg(car))}" target="_blank" rel="noopener">Mais info</a>`}
+          <button class="btn btn-ghost" type="button" id="fShare">Partilhar</button>
+          ${car.showroom ? `<button class="btn btn-ghost" type="button" id="fShow">Ver no showroom</button>` : ''}
+        </div>
+        <ul class="ficha-specs" id="fSpecs">${ord.map(([k, v], i) => `<li${i >= 10 ? ' class="extra" hidden' : ''}><span>${esc(k)}</span><b>${esc(v)}</b></li>`).join('')}</ul>
+        ${ord.length > 10 ? '<button class="search-clear" type="button" id="fMais">Ver mais características</button>' : ''}
+        ${car.obs ? `<details class="ficha-obs"><summary>Observações</summary>${esc(car.obs)}<p class="p-note" style="opacity:.6;margin-top:10px">Todos os dados carecem de confirmação junto do vendedor.</p></details>` : ''}
+      </div>
+    </div>
+    ${parecidos.length ? `<div class="ficha-like"><h3>Também vai gostar destes</h3><div class="news-strip">${parecidos.map(c => `<button class="ncard" type="button" data-id="${c.id}"><div class="vcard-media"><img src="${c.fotos[0]}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></div><div class="ncard-body"><small>${esc(c.marca)}</small><b>${esc(c.modelo)}</b><span>${fmtPrice(c.preco)}</span></div></button>`).join('')}</div></div>` : ''}`;
+  const sc = $('fichaScroll'); sc.scrollTop = 0;
+  const main = sc.querySelector('.ficha-main');
+  ligarCarrossel(main);
+  const t = main.querySelector('.cr-track'), th = sc.querySelectorAll('#fThumbs button');
+  if (t) t.addEventListener('scroll', () => {
+    const i = Math.round(t.scrollLeft / t.clientWidth);
+    th.forEach((b, k) => b.setAttribute('aria-current', k === i ? 'true' : 'false'));
+    if ($('fCount')) $('fCount').textContent = `${i + 1} / ${car.total_fotos || fotos.length} Fotos`;
+    const b = th[i]; if (b) b.parentElement.scrollTo({left: b.offsetLeft - b.parentElement.clientWidth / 2 + b.offsetWidth / 2, behavior: 'smooth'});
+  }, {passive: true});
+  th.forEach((b, k) => b.addEventListener('click', () => t.scrollTo({left: k * t.clientWidth, behavior: reduced ? 'auto' : 'smooth'})));
+  if ($('fMais')) $('fMais').addEventListener('click', e => { sc.querySelectorAll('#fSpecs .extra').forEach(li => li.hidden = false); e.target.remove(); });
+  $('fShare').addEventListener('click', async () => {
+    const url = location.href;
+    try { if (navigator.share) await navigator.share({title: fullName(car), url}); else { await navigator.clipboard.writeText(url); toast('Ligação copiada'); } } catch {}
   });
+  if ($('fShow')) $('fShow').addEventListener('click', () => { history.back(); setTimeout(() => showInShowroom(cars.indexOf(car)), 150); });
+  sc.querySelectorAll('.ficha-like .ncard').forEach(b => b.addEventListener('click', () => verFicha(b.dataset.id)));
+  const d = $('ficha');
+  if (!d.open) { d.showModal(); document.body.classList.add('ficha-aberta'); }
+}
+function fecharFicha(){ const d = $('ficha'); if (d.open) d.close(); document.body.classList.remove('ficha-aberta'); }
+function rotaFicha(){
+  const m = location.hash.match(/^#viatura-(\d+)$/);
+  const car = m && stock.find(c => c.id === m[1]);
+  if (car) abrirFicha(car); else fecharFicha();
+}
+function setupFicha(){
+  addEventListener('hashchange', rotaFicha);
+  $('fichaClose').addEventListener('click', () => history.back());
+  $('ficha').addEventListener('cancel', e => { e.preventDefault(); history.back(); });          // tecla Esc
+  $('ficha').addEventListener('click', e => { if (e.target === $('ficha')) history.back(); });  // clique fora
+  rotaFicha();
+}
+
+/* ---------- Eventos (as "Notícias" do site) ---------- */
+const EVENTOS = [
+  ['Estoril Classics 2024', '5 out 2024'], ['Porsche Club GT', '27 jun 2024'], ['Automobilia de Aveiro · 30ª edição', '24 mai 2024'],
+  ['Portugal GT Tour 2024', '14 mai 2024'], ['49th International Porsche 356 Meeting', '10 mai 2024'], ['Passeio dos Alemães 2024', '16 mar 2024'],
+  ['Motor Clássico Salão 2024', '20 fev 2024'], ['Salon Retromobile 2024', '31 jan 2024'], ['Estoril Classics 2023', '4 out 2023'],
+  ['Leiria sobre Rodas', '30 set 2023'], ['Algarve Classic Cars 2023', '13 jul 2023'], ['Red Bull Show Race', '25 jun 2023'],
+];
+function setupEventos(){
+  $('events').innerHTML = EVENTOS.map(([t, d]) => `<li><b>${esc(t)}</b><span>${d}</span></li>`).join('');
+}
+
+/* ---------- Aberto / fechado agora (horário do site: 09:00–13:00 e 14:30–19:00) ---------- */
+function setupHorario(){
+  const agora = new Date(new Date().toLocaleString('en-US', {timeZone: 'Europe/Lisbon'}));
+  const min = agora.getHours() * 60 + agora.getMinutes();
+  const aberto = (min >= 540 && min < 780) || (min >= 870 && min < 1140);
+  const el = $('abertoAgora');
+  el.textContent = aberto ? 'Aberto agora' : 'Fechado agora';
+  el.classList.toggle('fechado', !aberto);
 }
 
 function setupForm(){
@@ -1319,7 +1518,9 @@ function init(){
   cars = loadCars();
   iniciarPoster();
   buildStock();
-  buildFeature();
+  setupFicha();
+  setupEventos();
+  setupHorario();
   setupForm();
   setupReveal();
   $('year').textContent = new Date().getFullYear();
