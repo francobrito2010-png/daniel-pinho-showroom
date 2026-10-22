@@ -1391,13 +1391,19 @@ const jumpTo = i => { if(i !== idx) go(mod(i - idx) <= mod(idx - i) ? 1 : -1, i)
 function posDisco(){
   const img = $('pCar'), disc = $('pDisc'), car = cars[idx];
   const key = car && car.disco && Object.keys(car.disco).find(k => img.src.endsWith(k));
+  const wrap = $('pCarWrap');
   pst.classList.toggle('com-disco', !!key);
+  wrap.style.width = '';
   if(!key || !img.naturalWidth){ disc.hidden = true; return; }
   const [cx, cy, rx, ry] = car.disco[key];
-  const W = img.clientWidth, H = img.clientHeight, nat = img.naturalWidth / img.naturalHeight;
-  const w = nat > W / H ? W : H * nat, h = nat > W / H ? W / nat : H;               // object-fit:contain, encostado em baixo
+  const nat = img.naturalWidth / img.naturalHeight;
+  const caixa = () => { const W = img.clientWidth, H = img.clientHeight;              // object-fit:contain, encostado em baixo
+    return nat > W / H ? {W, H, w: W, h: W / nat} : {W, H, w: H * nat, h: H}; };
+  let {W, H, w, h} = caixa();
+  const cabe = pUpper.clientWidth * .98;                                             // o disco mantém sempre as proporções:
+  if(2 * rx * w > cabe){ wrap.style.width = `${wrap.clientWidth * cabe / (2 * rx * w)}px`; ({W, H, w, h} = caixa()); }   // em ecrãs estreitos o carro encolhe para o disco caber
   const x0 = img.offsetLeft + (W - w) / 2, y0 = img.offsetTop + (H - h);
-  const dw = Math.min(2 * rx * w, pUpper.clientWidth * 1.1), dl = x0 + cx * w - dw / 2, dt = y0 + (cy - ry) * h;   // no telemóvel sai um pouco do ecrã
+  const dw = 2 * rx * w, dl = x0 + cx * w - dw / 2, dt = y0 + (cy - ry) * h;
   Object.assign(disc.style, {left: `${dl}px`, top: `${dt}px`, width: `${dw}px`, height: `${2 * ry * h}px`});
   disc.style.setProperty('--dt', `${Math.max(7, w * .03).toFixed(1)}px`);
   const ref = $('pDiscRef');                                                          // espelho do carro, a partir da base da imagem
