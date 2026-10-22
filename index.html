@@ -190,8 +190,8 @@ img{display:block;max-width:100%}
   box-shadow:inset 0 2px 0 rgba(255,255,255,.28),0 var(--dt,8px) 0 color-mix(in srgb,var(--c) 68%,#000),0 calc(var(--dt,8px) + 20px) 44px -12px rgba(0,0,0,.35);
   transition:left .5s var(--ease-out),top .5s var(--ease-out),width .5s var(--ease-out),height .5s var(--ease-out)}
 .p-disc[hidden]{display:none}
-.p-disc img{position:absolute;max-width:none;transform:scaleY(-1);opacity:.2;filter:blur(2px);   /* reflexo suave do carro no tampo */
-  -webkit-mask-image:linear-gradient(to top,#000 0,transparent 32%);mask-image:linear-gradient(to top,#000 0,transparent 32%)}
+.p-disc img{position:absolute;max-width:none;transform:scaleY(-1);opacity:.34;filter:blur(1.5px) saturate(.9);   /* reflexo suave do carro no tampo */
+  -webkit-mask-image:linear-gradient(to top,#000 0,rgba(0,0,0,.5) 18%,transparent 46%);mask-image:linear-gradient(to top,#000 0,rgba(0,0,0,.5) 18%,transparent 46%)}
 .p-car{width:100%;aspect-ratio:2.38;object-fit:contain;object-position:50% 100%;pointer-events:none;-webkit-user-drag:none}
 .p-ghost{position:absolute;inset:0;z-index:5;pointer-events:none}
 
