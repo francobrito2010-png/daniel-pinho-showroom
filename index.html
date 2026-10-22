@@ -184,6 +184,14 @@ img{display:block;max-width:100%}
   transform:translate3d(calc(var(--mx,0) * 8px),0,0)}
 .p-car-wrap::after{content:"";position:absolute;left:8%;right:8%;bottom:-3%;height:12%;z-index:-1;
   background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(0,0,0,.55),transparent 70%)}
+/* Plataforma redonda em perspetiva por baixo do carro (posição em cars.js "disco", calculada por tools/disco.mjs) */
+.p-disc{position:absolute;z-index:-1;border-radius:50%;pointer-events:none;overflow:hidden;
+  background:radial-gradient(ellipse 70% 60% at 50% 38%,color-mix(in srgb,var(--c) 90%,#fff) 0%,var(--c) 55%,color-mix(in srgb,var(--c) 86%,#000) 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.28),0 var(--dt,8px) 0 color-mix(in srgb,var(--c) 68%,#000),0 calc(var(--dt,8px) + 20px) 44px -12px rgba(0,0,0,.35);
+  transition:left .5s var(--ease-out),top .5s var(--ease-out),width .5s var(--ease-out),height .5s var(--ease-out)}
+.p-disc[hidden]{display:none}
+.p-disc img{position:absolute;max-width:none;transform:scaleY(-1);opacity:.2;filter:blur(2px);   /* reflexo suave do carro no tampo */
+  -webkit-mask-image:linear-gradient(to top,#000 0,transparent 32%);mask-image:linear-gradient(to top,#000 0,transparent 32%)}
 .p-car{width:100%;aspect-ratio:2.38;object-fit:contain;object-position:50% 100%;pointer-events:none;-webkit-user-drag:none}
 .p-ghost{position:absolute;inset:0;z-index:5;pointer-events:none}
 
@@ -202,6 +210,9 @@ img{display:block;max-width:100%}
   padding:calc(var(--pT) + var(--pcar-h) * .04) clamp(16px,4vw,48px) clamp(40px,5vw,64px);
   background:linear-gradient(180deg,var(--c) 0%,var(--c2) 100%);
   clip-path:polygon(var(--bl) 0,var(--br) 0,100% var(--pT),100% 100%,0 100%,0 var(--pT))}
+/* carros com disco: a banda acaba por trás dele e, por baixo, o fundo funde-se na cor da marca (em vez do trapézio) */
+.pst.com-disco .p-band{bottom:calc(var(--pcar-h) * .3)}
+.pst.com-disco .p-lower{clip-path:none;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 var(--pT));mask-image:linear-gradient(180deg,transparent 0,#000 var(--pT))}
 .p-inner{max-width:900px;margin:0 auto}
 .p-stats{display:grid;grid-template-columns:repeat(3,1fr)}
 .p-stat{padding:4px 8px}
@@ -684,7 +695,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
     <p class="p-model p-fx" style="--i:1" id="pModel"></p>
     <p class="p-tag p-fx" style="--i:2" id="pTag"></p>
 
-    <div class="p-car-wrap" id="pCarWrap"><img class="p-car" id="pCar" alt="" draggable="false"></div>
+    <div class="p-car-wrap" id="pCarWrap"><div class="p-disc" id="pDisc" aria-hidden="true" hidden><img id="pDiscRef" alt=""></div><img class="p-car" id="pCar" alt="" draggable="false"></div>
 
     <button class="p-arrow p-arrow--prev" id="prevBtn" type="button" aria-label="Carro anterior">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -1375,6 +1386,27 @@ async function go(dir, target = null, fromDx = 0){
   busy = false;
 }
 const jumpTo = i => { if(i !== idx) go(mod(i - idx) <= mod(idx - i) ? 1 : -1, i); };
+
+/* ---------- disco por baixo do carro: acompanha a imagem visível (também ao "Rodar") ---------- */
+function posDisco(){
+  const img = $('pCar'), disc = $('pDisc'), car = cars[idx];
+  const key = car && car.disco && Object.keys(car.disco).find(k => img.src.endsWith(k));
+  pst.classList.toggle('com-disco', !!key);
+  if(!key || !img.naturalWidth){ disc.hidden = true; return; }
+  const [cx, cy, rx, ry] = car.disco[key];
+  const W = img.clientWidth, H = img.clientHeight, nat = img.naturalWidth / img.naturalHeight;
+  const w = nat > W / H ? W : H * nat, h = nat > W / H ? W / nat : H;               // object-fit:contain, encostado em baixo
+  const x0 = img.offsetLeft + (W - w) / 2, y0 = img.offsetTop + (H - h);
+  const dw = Math.min(2 * rx * w, pUpper.clientWidth * 1.1), dl = x0 + cx * w - dw / 2, dt = y0 + (cy - ry) * h;   // no telemóvel sai um pouco do ecrã
+  Object.assign(disc.style, {left: `${dl}px`, top: `${dt}px`, width: `${dw}px`, height: `${2 * ry * h}px`});
+  disc.style.setProperty('--dt', `${Math.max(7, w * .03).toFixed(1)}px`);
+  const ref = $('pDiscRef');                                                          // espelho do carro, a partir da base da imagem
+  if(ref.getAttribute('src') !== img.getAttribute('src')) ref.src = img.getAttribute('src');
+  Object.assign(ref.style, {left: `${x0 - dl}px`, top: `${y0 + h * .985 - dt}px`, width: `${w}px`, height: `${h}px`});
+  disc.hidden = false;
+}
+$('pCar').addEventListener('load', posDisco);
+addEventListener('resize', posDisco);
 
 /* ---------- "Rodar": percorre os ângulos do carro (3/4 → frente → 3/4 → frente → 3/4) ---------- */
 let rodarT = null;

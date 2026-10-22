@@ -8,7 +8,8 @@
     "girar": "node girar.mjs",
     "rodas": "node rodas.mjs",
     "probar": "node probar.mjs",
-    "poster": "node poster.mjs"
+    "poster": "node poster.mjs",
+    "disco": "node disco.mjs"
   },
   "dependencies": {
     "onnxruntime-node": "^1.17.3",
