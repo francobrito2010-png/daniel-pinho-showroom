@@ -485,6 +485,46 @@ body.ficha-aberta{overflow:hidden}
 .reel--ig small{font-size:11px;letter-spacing:.14em;opacity:.8}
 .p-reel{top:calc(var(--p-setas) + 108px)}
 
+/* pré-visualização em silêncio nos cartões */
+.reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .45s}
+.reel.a-tocar video{opacity:1}
+.reel.a-tocar .reel-play{opacity:0}
+
+/* Leitor de Reels (por cima da página) */
+.rv{padding:0;border:0;margin:0;width:100vw;height:100dvh;max-width:none;max-height:none;background:transparent;color:#fff;overflow:hidden}
+.rv::backdrop{background:rgba(6,8,7,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.rv[open] .rv-frame{animation:fichaIn .45s var(--ease-out)}
+.rv-stage{position:relative;width:100%;height:100%;display:grid;place-items:center}
+.rv-frame{--rvh:min(calc(100dvh - 40px),860px);position:relative;height:var(--rvh);aspect-ratio:9/16;max-width:100vw;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 40px 120px -20px rgba(0,0,0,.8)}
+@media (max-width:600px){.rv-frame{height:100dvh;width:100vw;aspect-ratio:auto;border-radius:0}}
+.rv-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:pointer}
+.rv-prog{position:absolute;z-index:3;top:10px;left:12px;right:12px;height:3px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden}
+.rv-prog i{display:block;height:100%;width:0;background:#fff;transition:width .25s linear}
+.rv-top{position:absolute;z-index:3;top:22px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.14em}
+.rv-top div{display:flex;gap:8px}
+.rv-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.rv-btn svg{width:18px;height:18px}
+.rv-pausa{position:absolute;z-index:2;inset:0;margin:auto;width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.4);pointer-events:none}
+.rv-pausa svg{width:30px;height:30px;margin-left:4px}
+.rv-pausa[hidden]{display:none}
+.rv-info{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:70px 18px 18px;display:flex;flex-direction:column;gap:4px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.8))}
+.rv-info small{font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;opacity:.85}
+.rv-info b{font-size:21px;font-weight:600;line-height:1.2}
+.rv-info > span{display:flex;align-items:center;gap:6px;font-size:12px;opacity:.8}
+.rv-info > span svg{width:14px;height:14px}
+.rv-acoes{display:flex;gap:8px;margin-top:12px}
+.rv-cta{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 14px;border-radius:99px;font-weight:600;font-size:14px;background:#fff;color:#111312}
+.rv-cta svg{width:17px;height:17px}
+.rv-cta--line{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6)}
+.rv-cta[hidden]{display:none}
+.rv-ig{align-self:center;margin-top:10px;font-size:12px;opacity:.7;text-decoration:underline;text-underline-offset:2px}
+.rv-nav{position:absolute;top:50%;width:52px;height:52px;border-radius:50%;display:none;place-items:center;transform:translateY(-50%);color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);transition:background .2s}
+.rv-nav:hover{background:rgba(255,255,255,.26)}
+.rv-nav svg{width:20px;height:20px}
+.rv-nav--prev{left:max(16px,calc(50% - min(calc(100dvh - 40px),860px) * .28 - 90px))}
+.rv-nav--next{right:max(16px,calc(50% - min(calc(100dvh - 40px),860px) * .28 - 90px))}
+@media (min-width:700px){.rv-nav{display:grid}}
+
 /* Setas das faixas horizontais (Reels, Últimas entradas) no computador */
 .strip-wrap{position:relative}
 .strip-wrap > .reels,.strip-wrap > .news-strip{scroll-padding-inline:16px}
@@ -792,7 +832,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
 <section class="section" id="reels" aria-labelledby="reelsTitle" style="padding-bottom:40px">
   <div class="sec-head reveal">
     <div><p class="kicker">Reels</p><h2 class="h2" id="reelsTitle">Em movimento</h2></div>
-    <p class="lead">As nossas viaturas em vídeo, como as publicamos no Instagram. Toque para ver.</p>
+    <p class="lead">As nossas viaturas em vídeo. Toque para ver com som; deslize para o seguinte.</p>
   </div>
   <div class="reels reveal" id="reelsStrip"></div>
 </section>
@@ -968,6 +1008,29 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
   </a>
 </div>
+
+<dialog class="rv" id="rv" aria-label="Vídeo da viatura">
+  <div class="rv-stage">
+    <div class="rv-frame">
+      <video class="rv-video" id="rvVideo" playsinline preload="auto"></video>
+      <div class="rv-prog" aria-hidden="true"><i id="rvBar"></i></div>
+      <span class="rv-pausa" id="rvPausa" hidden><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+      <div class="rv-top"><span id="rvConta"></span><div>
+        <button class="rv-btn" id="rvSom" type="button"></button>
+        <button class="rv-btn" id="rvFechar" type="button" aria-label="Fechar o vídeo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+      <div class="rv-info">
+        <small id="rvMarca"></small><b id="rvNome"></b><span id="rvVistas"></span>
+        <div class="rv-acoes">
+          <a class="rv-cta" id="rvWa" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>Tenho interesse</a>
+          <button class="rv-cta rv-cta--line" id="rvVer" type="button" hidden>Ver no showroom</button>
+        </div>
+        <a class="rv-ig" id="rvIg" href="#" target="_blank" rel="noopener">Ver no Instagram</a>
+      </div>
+    </div>
+    <button class="rv-nav rv-nav--prev" id="rvAnt" type="button" aria-label="Vídeo anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button class="rv-nav rv-nav--next" id="rvSeg" type="button" aria-label="Vídeo seguinte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+</dialog>
 
 <dialog class="ficha" id="ficha" aria-labelledby="fTitle">
   <button class="ficha-close" id="fichaClose" type="button" aria-label="Fechar e voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -1268,7 +1331,7 @@ const EVENTOS = [
   ['Motor Clássico Salão 2024', '20 fev 2024'], ['Salon Retromobile 2024', '31 jan 2024'], ['Estoril Classics 2023', '4 out 2023'],
   ['Leiria sobre Rodas', '30 set 2023'], ['Algarve Classic Cars 2023', '13 jul 2023'], ['Red Bull Show Race', '25 jun 2023'],
 ];
-/* ---------- Reels do Instagram: capas guardadas em assets/reels (as do Instagram expiram); o leitor incorporado do Instagram não toca o vídeo sem sessão iniciada, por isso cada cartão abre o Reel no Instagram ---------- */
+/* ---------- Reels: vídeos do Instagram do stand, guardados em assets/reels (mp4 + capa) e vistos aqui mesmo ---------- */
 const REELS = [
   {id: 'DecRV3mqwQm', marca: 'Ferrari', nome: 'SF90 Stradale', vistas: '63,4 mil', carro: '1722938'},
   {id: 'DcJtt0TsePN', marca: 'Porsche', nome: '992.2 Carrera GTS Cabrio', vistas: '35 mil'},
@@ -1278,17 +1341,84 @@ const REELS = [
   {id: 'DdUaHaCK6Ac', marca: 'BMW', nome: 'M5 Touring', vistas: '3.513'},
 ];
 const reelUrl = id => `https://www.instagram.com/reel/${id}/`;
+const reelSrc = (r, ext) => `assets/reels/${r.id}.${ext}`;
 const OLHO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const SOM = ['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
+             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M16 9l6 6M22 9l-6 6"/></svg>'];
+const poupar = () => reduced || (navigator.connection && navigator.connection.saveData);
+
 function setupReels(){
-  $('reelsStrip').innerHTML = REELS.map(r => `<a class="reel" href="${reelUrl(r.id)}" target="_blank" rel="noopener" aria-label="Ver o Reel do ${esc(r.marca + ' ' + r.nome)} no Instagram">
-      <img src="assets/reels/${r.id}.webp" alt="" loading="lazy" decoding="async">
+  $('reelsStrip').innerHTML = REELS.map((r, i) => `<button class="reel" type="button" data-i="${i}" aria-label="Ver o vídeo do ${esc(r.marca + ' ' + r.nome)}">
+      <img src="${reelSrc(r, 'webp')}" alt="" loading="lazy" decoding="async">
+      <video muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
       <span class="reel-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span>
       <span class="reel-info"><small>${esc(r.marca)}</small><b>${esc(r.nome)}</b><span>${OLHO} ${r.vistas}</span></span>
-    </a>`).join('') +
+    </button>`).join('') +
     `<a class="reel reel--ig" href="${STAND.instagram}" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-      <b>Ver todos os Reels<br>no Instagram</b><small>@daniel_pinho_automoveis_</small></a>`;
-  $('btnReel').addEventListener('click', () => { const r = REELS.find(r => r.carro === cars[idx].id); if(r) open(reelUrl(r.id), '_blank', 'noopener'); });
+      <b>Mais vídeos<br>no Instagram</b><small>@daniel_pinho_automoveis_</small></a>`;
+  $('reelsStrip').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if(b) abrirReel(+b.dataset.i); });
+  $('btnReel').addEventListener('click', () => { const i = REELS.findIndex(r => r.carro === cars[idx].id); if(i >= 0) abrirReel(i); });
+
+  // pré-visualização em silêncio: ao passar o rato (computador) ou o cartão mais visível (telemóvel)
+  const cartoes = [...$('reelsStrip').querySelectorAll('[data-i]')];
+  const tocar = (c, sim) => { const v = c.querySelector('video');
+    if(sim){ if(!v.src) v.src = reelSrc(REELS[+c.dataset.i], 'mp4'); v.play().then(() => c.classList.add('a-tocar')).catch(() => {}); }
+    else { v.pause(); c.classList.remove('a-tocar'); } };
+  if(poupar()) return;
+  if(matchMedia('(hover: hover)').matches){
+    cartoes.forEach(c => { c.addEventListener('mouseenter', () => tocar(c, true)); c.addEventListener('mouseleave', () => tocar(c, false)); });
+  } else {
+    const vis = new Map();
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => vis.set(e.target, e.intersectionRatio));
+      const melhor = [...vis].filter(([, r]) => r > .8).sort((a, b) => b[1] - a[1])[0];
+      cartoes.forEach(c => tocar(c, !!melhor && c === melhor[0]));
+    }, {threshold: [0, .5, .8, 1]});
+    cartoes.forEach(c => io.observe(c));
+  }
+}
+
+/* Leitor por cima da página: vídeo vertical com som, deslizar ou setas para o seguinte, contacto direto */
+let rvI = 0, rvMudo = false, rvToque = null;
+function abrirReel(i){
+  rvI = (i + REELS.length) % REELS.length;
+  const r = REELS[rvI], v = $('rvVideo'), car = r.carro && cars.find(c => c.id === r.carro);
+  v.poster = reelSrc(r, 'webp'); v.src = reelSrc(r, 'mp4'); v.muted = rvMudo;
+  $('rvMarca').textContent = r.marca; $('rvNome').textContent = r.nome; $('rvVistas').innerHTML = `${OLHO} ${r.vistas} visualizações no Instagram`;
+  $('rvWa').href = waLink(`Olá! Vi o vídeo do ${r.marca} ${r.nome} no site e gostava de saber mais.`);
+  $('rvIg').href = reelUrl(r.id);
+  $('rvVer').hidden = !car;
+  $('rvBar').style.width = '0%';
+  $('rvConta').textContent = `${rvI + 1} / ${REELS.length}`;
+  if(!$('rv').open){ $('rv').showModal(); document.body.classList.add('ficha-aberta'); }
+  v.play().catch(() => { rvMudo = v.muted = true; somIcone(); v.play().catch(() => {}); });
+  somIcone();
+  $('reelsStrip').querySelectorAll('video').forEach(x => x.pause());
+}
+function somIcone(){ $('rvSom').innerHTML = SOM[rvMudo ? 1 : 0]; $('rvSom').setAttribute('aria-label', rvMudo ? 'Ligar o som' : 'Desligar o som'); }
+function setupLeitorReels(){
+  const rv = $('rv'), v = $('rvVideo');
+  $('rvFechar').addEventListener('click', () => rv.close());
+  $('rvAnt').addEventListener('click', () => abrirReel(rvI - 1));
+  $('rvSeg').addEventListener('click', () => abrirReel(rvI + 1));
+  $('rvSom').addEventListener('click', () => { rvMudo = v.muted = !v.muted; somIcone(); });
+  $('rvVer').addEventListener('click', () => { const r = REELS[rvI]; rv.close(); const i = cars.findIndex(c => c.id === r.carro);
+    if(i >= 0){ document.getElementById('showroom').scrollIntoView({behavior: reduced ? 'auto' : 'smooth'}); jumpTo(i); } });
+  v.addEventListener('timeupdate', () => { if(v.duration) $('rvBar').style.width = `${v.currentTime / v.duration * 100}%`; });
+  v.addEventListener('ended', () => abrirReel(rvI + 1));
+  v.addEventListener('click', () => v.paused ? v.play() : v.pause());
+  v.addEventListener('play', () => $('rvPausa').hidden = true);
+  v.addEventListener('pause', () => $('rvPausa').hidden = !rv.open);
+  rv.addEventListener('keydown', e => { if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){ e.preventDefault(); abrirReel(rvI + 1); }
+    if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ e.preventDefault(); abrirReel(rvI - 1); } });
+  rv.addEventListener('click', e => { if(e.target === rv || e.target.classList.contains('rv-stage')) rv.close(); });
+  rv.addEventListener('close', () => { v.pause(); v.removeAttribute('src'); v.load(); document.body.classList.remove('ficha-aberta'); });
+  // deslizar no telemóvel: para cima/esquerda = seguinte, para baixo/direita = anterior
+  rv.addEventListener('touchstart', e => { const t = e.touches[0]; rvToque = {x: t.clientX, y: t.clientY}; }, {passive: true});
+  rv.addEventListener('touchend', e => { if(!rvToque) return; const t = e.changedTouches[0], dx = t.clientX - rvToque.x, dy = t.clientY - rvToque.y; rvToque = null;
+    if(Math.max(Math.abs(dx), Math.abs(dy)) < 50) return;
+    abrirReel(rvI + ((Math.abs(dy) > Math.abs(dx) ? dy : dx) < 0 ? 1 : -1)); });
 }
 
 /* Setas ‹ › para as faixas que deslizam na horizontal (no telemóvel desliza-se com o dedo) */
@@ -1651,6 +1781,7 @@ function init(){
   setupFicha();
   setupEventos();
   setupReels();
+  setupLeitorReels();
   setasFaixa($('reelsStrip')); setasFaixa($('newsStrip'));
   setupHorario();
   setupForm();
