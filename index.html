@@ -485,6 +485,18 @@ body.ficha-aberta{overflow:hidden}
 .reel--ig small{font-size:11px;letter-spacing:.14em;opacity:.8}
 .p-reel{top:calc(var(--p-setas) + 108px)}
 
+/* Setas das faixas horizontais (Reels, Últimas entradas) no computador */
+.strip-wrap{position:relative}
+.strip-wrap > .reels,.strip-wrap > .news-strip{scroll-padding-inline:16px}
+@media (min-width:700px){.strip-wrap > .reels,.strip-wrap > .news-strip{scroll-padding-inline:32px}}
+.strip-btn{position:absolute;top:50%;z-index:3;width:48px;height:48px;border-radius:50%;display:none;place-items:center;transform:translateY(-50%);
+  background:var(--bg);color:var(--ink);border:1px solid var(--line-2);box-shadow:0 12px 28px -12px rgba(0,0,0,.45);transition:opacity .25s,transform .2s}
+.strip-btn:hover{transform:translateY(-50%) scale(1.06)}
+.strip-btn svg{width:18px;height:18px}
+.strip-btn--prev{left:-14px}.strip-btn--next{right:-14px}
+.strip-btn[disabled]{opacity:0;pointer-events:none}
+@media (hover:hover) and (min-width:700px){.strip-btn{display:grid}}
+
 /* Eventos */
 .events{list-style:none;display:grid;grid-template-columns:1fr;border-top:1px solid var(--line)}
 @media (min-width:700px){.events{grid-template-columns:1fr 1fr;column-gap:40px}}
@@ -1279,6 +1291,20 @@ function setupReels(){
   $('btnReel').addEventListener('click', () => { const r = REELS.find(r => r.carro === cars[idx].id); if(r) open(reelUrl(r.id), '_blank', 'noopener'); });
 }
 
+/* Setas ‹ › para as faixas que deslizam na horizontal (no telemóvel desliza-se com o dedo) */
+function setasFaixa(strip){
+  const wrap = document.createElement('div'); wrap.className = 'strip-wrap';
+  strip.parentNode.insertBefore(wrap, strip); wrap.appendChild(strip);
+  const seta = (dir, d) => { const b = document.createElement('button'); b.type = 'button'; b.className = `strip-btn strip-btn--${dir}`;
+    b.setAttribute('aria-label', dir === 'prev' ? 'Anterior' : 'Seguinte');
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+    b.addEventListener('click', () => strip.scrollBy({left: (dir === 'prev' ? -1 : 1) * strip.clientWidth * .8, behavior: reduced ? 'auto' : 'smooth'}));
+    wrap.appendChild(b); return b; };
+  const prev = seta('prev', 'M15 18l-6-6 6-6'), next = seta('next', 'M9 6l6 6-6 6');
+  const estado = () => { prev.disabled = strip.scrollLeft < 8; next.disabled = strip.scrollLeft + strip.clientWidth > strip.scrollWidth - 8; };
+  strip.addEventListener('scroll', estado, {passive: true}); addEventListener('resize', estado); estado();
+}
+
 function setupEventos(){
   $('events').innerHTML = EVENTOS.map(([t, d]) => `<li><b>${esc(t)}</b><span>${d}</span></li>`).join('');
 }
@@ -1625,6 +1651,7 @@ function init(){
   setupFicha();
   setupEventos();
   setupReels();
+  setasFaixa($('reelsStrip')); setasFaixa($('newsStrip'));
   setupHorario();
   setupForm();
   setupReveal();
