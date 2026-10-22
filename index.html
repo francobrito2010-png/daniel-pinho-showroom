@@ -458,6 +458,33 @@ button.fab-wa{border:0;cursor:pointer}
 .ficha-like .ncard{flex-basis:min(70vw,230px)}
 body.ficha-aberta{overflow:hidden}
 
+/* Reels (vídeos do Instagram): faixa discreta de cartões verticais; cada um abre o Reel no Instagram (na app, no telemóvel) */
+.reels{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:4px 16px 10px}
+.reels::-webkit-scrollbar{display:none}
+@media (min-width:700px){.reels{margin:0 -32px;padding:4px 32px 10px}}
+.reel{position:relative;flex:0 0 min(44vw,220px);aspect-ratio:9/16;border-radius:18px;overflow:hidden;scroll-snap-align:start;background:#0b0d0c;color:#fff;text-align:left;isolation:isolate;
+  box-shadow:0 18px 40px -22px rgba(0,0,0,.55);transition:transform .35s var(--ease-out)}
+.reel:hover{transform:translateY(-4px)}
+.reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease-out)}
+.reel:hover img{transform:scale(1.05)}
+.reel::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.28) 0,transparent 26%,transparent 52%,rgba(0,0,0,.8) 100%)}
+.reel-play{position:absolute;z-index:2;top:12px;right:12px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .25s,transform .25s}
+.reel:hover .reel-play{background:rgba(255,255,255,.32);transform:scale(1.08)}
+.reel-play svg{width:15px;height:15px;margin-left:2px}
+.reel-info{position:absolute;z-index:2;left:14px;right:14px;bottom:14px;display:flex;flex-direction:column;gap:3px}
+.reel-info small{font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;opacity:.85}
+.reel-info b{font-size:15px;font-weight:500;line-height:1.25}
+.reel-info span{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:12px;opacity:.85;font-variant-numeric:tabular-nums}
+.reel-info span svg{width:13px;height:13px}
+.reel--ig{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(var(--accent-rgb),.35),transparent 70%),linear-gradient(170deg,#1b6a52,#0c3428)}
+.reel--ig::after{display:none}
+.reel--ig svg{width:34px;height:34px}
+.reel--ig b{font-size:15px;font-weight:500;line-height:1.35}
+.reel--ig small{font-size:11px;letter-spacing:.14em;opacity:.8}
+.p-reel{top:calc(var(--p-setas) + 108px)}
+
 /* Eventos */
 .events{list-style:none;display:grid;grid-template-columns:1fr;border-top:1px solid var(--line)}
 @media (min-width:700px){.events{grid-template-columns:1fr 1fr;column-gap:40px}}
@@ -703,6 +730,7 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
     <button class="p-arrow p-arrow--next" id="nextBtn" type="button" aria-label="Carro seguinte">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
     </button>
+    <button class="p-rodar p-reel" id="btnReel" type="button" aria-label="Ver o Reel desta viatura" hidden><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg> Reel</button>
     <button class="p-rodar" id="btnRodar" type="button" aria-pressed="false" aria-label="Rodar a viatura" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg> Rodar
     </button>
@@ -742,6 +770,19 @@ html.theme-anim,html.theme-anim *{transition:background-color .4s ease,color .4s
     <p class="lead">As viaturas que entraram mais recentemente no stand. Toque para ver a ficha completa.</p>
   </div>
   <div class="news-strip reveal" id="newsStrip"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =========================================================
+     REELS — as viaturas em vídeo (Instagram do stand)
+     ========================================================= -->
+<section class="section" id="reels" aria-labelledby="reelsTitle" style="padding-bottom:40px">
+  <div class="sec-head reveal">
+    <div><p class="kicker">Reels</p><h2 class="h2" id="reelsTitle">Em movimento</h2></div>
+    <p class="lead">As nossas viaturas em vídeo, como as publicamos no Instagram. Toque para ver.</p>
+  </div>
+  <div class="reels reveal" id="reelsStrip"></div>
 </section>
 
 <div class="divider"></div>
@@ -1215,6 +1256,29 @@ const EVENTOS = [
   ['Motor Clássico Salão 2024', '20 fev 2024'], ['Salon Retromobile 2024', '31 jan 2024'], ['Estoril Classics 2023', '4 out 2023'],
   ['Leiria sobre Rodas', '30 set 2023'], ['Algarve Classic Cars 2023', '13 jul 2023'], ['Red Bull Show Race', '25 jun 2023'],
 ];
+/* ---------- Reels do Instagram: capas guardadas em assets/reels (as do Instagram expiram); o leitor incorporado do Instagram não toca o vídeo sem sessão iniciada, por isso cada cartão abre o Reel no Instagram ---------- */
+const REELS = [
+  {id: 'DecRV3mqwQm', marca: 'Ferrari', nome: 'SF90 Stradale', vistas: '63,4 mil', carro: '1722938'},
+  {id: 'DcJtt0TsePN', marca: 'Porsche', nome: '992.2 Carrera GTS Cabrio', vistas: '35 mil'},
+  {id: 'DayNW_AM0bV', marca: 'Ferrari', nome: 'F12berlinetta', vistas: '8.992'},
+  {id: 'DeuggYvMv4W', marca: 'Bentley', nome: 'Continental GTC W12 Speed', vistas: '5.430', carro: '1721628'},
+  {id: 'DbLuSq8sKpH', marca: 'Ferrari', nome: '296 GTB', vistas: '3.653'},
+  {id: 'DdUaHaCK6Ac', marca: 'BMW', nome: 'M5 Touring', vistas: '3.513'},
+];
+const reelUrl = id => `https://www.instagram.com/reel/${id}/`;
+const OLHO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+function setupReels(){
+  $('reelsStrip').innerHTML = REELS.map(r => `<a class="reel" href="${reelUrl(r.id)}" target="_blank" rel="noopener" aria-label="Ver o Reel do ${esc(r.marca + ' ' + r.nome)} no Instagram">
+      <img src="assets/reels/${r.id}.webp" alt="" loading="lazy" decoding="async">
+      <span class="reel-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+      <span class="reel-info"><small>${esc(r.marca)}</small><b>${esc(r.nome)}</b><span>${OLHO} ${r.vistas}</span></span>
+    </a>`).join('') +
+    `<a class="reel reel--ig" href="${STAND.instagram}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+      <b>Ver todos os Reels<br>no Instagram</b><small>@daniel_pinho_automoveis_</small></a>`;
+  $('btnReel').addEventListener('click', () => { const r = REELS.find(r => r.carro === cars[idx].id); if(r) open(reelUrl(r.id), '_blank', 'noopener'); });
+}
+
 function setupEventos(){
   $('events').innerHTML = EVENTOS.map(([t, d]) => `<li><b>${esc(t)}</b><span>${d}</span></li>`).join('');
 }
@@ -1332,6 +1396,8 @@ function preencher(car){
   $('skL').hidden = !p.esbocoL; $('skR').hidden = !p.esbocoR;
   [...$('pDots').children].forEach((d, k) => d.setAttribute('aria-current', cars[k] === car ? 'true' : 'false'));
   $('btnRodar').hidden = !(car.frames && car.frames.length > 1);
+  $('btnReel').hidden = !REELS.some(r => r.carro === car.id);
+  $('btnReel').style.top = $('btnRodar').hidden ? 'calc(var(--p-setas) + 62px)' : '';
   $('live').textContent = `${nameYear(car)}, ${fmtPrice(car.preco)}`;
   document.querySelectorAll('.p-fx').forEach(el => { el.classList.remove('p-fx-in'); void el.offsetWidth; el.classList.add('p-fx-in'); });
 }
@@ -1558,6 +1624,7 @@ function init(){
   buildStock();
   setupFicha();
   setupEventos();
+  setupReels();
   setupHorario();
   setupForm();
   setupReveal();
