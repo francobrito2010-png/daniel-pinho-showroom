@@ -4,8 +4,8 @@
 //   node disco.mjs 1722938 …      (só estes; os outros ficam sem disco e com o chão em trapézio)
 //
 // Para cada imagem de cars.js ("imagem" e "frames") lê o perfil de baixo do recorte, encontra os pontos
-// de apoio (máximos locais: pneus e ponto mais baixo) e calcula a elipse mais baixa que os contém a todos,
-// com folga: em vista 3/4 a roda traseira fica mais alta na foto, por isso o disco sobe por trás dela.
+// de apoio (máximos locais: pneus e ponto mais baixo) e calcula a elipse mais achatada que assenta o carro todo,
+// incluindo a traseira: em vista 3/4 a roda traseira fica mais alta na foto, por isso o disco sobe por trás dela.
 // Grava em cars.js: "disco": { "cars/x.webp": [cx, cy, rx, ry] } (0–1, relativos à largura/altura da imagem).
 // Gera .work/disco.png com as elipses desenhadas, para conferir.
 import fs from 'node:fs';
@@ -36,20 +36,33 @@ function apoios(p){
   return pts;
 }
 
-// Elipse centrada no carro, mais larga que ele; ry mínimo para que todos os apoios fiquem dentro, com folga.
+// Elipse com as proporções da referência (imagem do ChatGPT): largura 1,66× o carro, achatamento ~0,14,
+// pneus ~11% da altura do carro para dentro da borda e a carroçaria (traseira, splitter) com ~8% de folga.
+// Critério visual: em nenhuma coluna pode haver fundo à vista entre o carro e o disco (senão a traseira "flutua").
+// Procura o ry mais pequeno (disco mais achatado) que cumpre isso, deixando o centro deslizar um pouco
+// para a frente ou para trás do centro do carro; entre centros possíveis fica o que deixa mais folga.
 function elipse(p, pts, h){
-  const cx = (p.x0 + p.x1) / 2, rx = p.L * .9;                 // bem mais largo que o carro e achatado
-  const padT = h * .08, padB = h * .1;
-  for (let ry = p.L * .05; ry < p.L * .4; ry += .5) {
+  const rx = p.L * .83, c0 = (p.x0 + p.x1) / 2;
+  const padPneu = h * .11, padCorpo = h * .08;
+  // carroçaria junto ao chão (sem saliências altas como os espelhos na vista de frente)
+  const passo = Math.max(1, Math.round(p.L / 240)), corpo = [], fundo = Math.max(...pts.map(q => q[1]));
+  for (let x = p.x0 + Math.round(p.L * .015); x <= p.x1 - Math.round(p.L * .015); x += passo) if (p.f[x] >= 0 && p.f[x] > fundo - h * .45) corpo.push([x, p.f[x]]);
+  const limites = cx => (ry) => {
     let L = -Infinity, U = Infinity;
-    for (const [x, y] of pts) {
-      const t = (x - cx) / rx, hh = ry * Math.sqrt(Math.max(0, 1 - t * t));
-      U = Math.min(U, y - padT + hh);          // topo da elipse acima do apoio
-      L = Math.max(L, y + padB - hh);          // fundo da elipse abaixo do apoio
+    const conta = (x, y, pad) => { const t = (x - cx) / rx, hh = ry * Math.sqrt(Math.max(0, 1 - t * t)); U = Math.min(U, y - pad + hh); L = Math.max(L, y + pad - hh); };
+    for (const [x, y] of corpo) conta(x, y, padCorpo);
+    for (const [x, y] of pts) conta(x, y, padPneu);
+    return {L, U};
+  };
+  for (let ry = rx * .12; ry < rx * .6; ry += .5) {
+    let melhor = null;
+    for (let d = -.06; d <= .0601; d += .01) {
+      const cx = c0 + d * p.L, {L, U} = limites(cx)(ry);
+      if (L <= U && (!melhor || U - L > melhor.folga)) melhor = {cx, cy: (L + U) / 2, folga: U - L};
     }
-    if (L <= U) return {cx, cy: L + (U - L) * .35, rx, ry};
+    if (melhor) return {cx: melhor.cx, cy: melhor.cy, rx, ry};
   }
-  return {cx, cy: Math.max(...pts.map(q => q[1])), rx, ry: p.L * .4};
+  return {cx: c0, cy: Math.max(...pts.map(q => q[1])), rx, ry: rx * .6};
 }
 
 const SO = process.argv.slice(2);
